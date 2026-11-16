@@ -19,11 +19,12 @@ vi.mock('vue-router', () => ({
 
 const i18n = createI18n({legacy: false, locale: 'en', messages: {en}})
 
-function mountPasswordReset(errors: unknown[] = []) {
+function mountPasswordReset(errors: unknown[] = [], realPassword = false) {
 	return mount(PasswordReset, {
 		global: {
 			plugins: [i18n, [VueQueryPlugin, {queryClient: new QueryClient()}]],
-			stubs: {XButton: true, Password: true},
+			stubs: {XButton: true, Password: !realPassword, Icon: true, RouterLink: true},
+			directives: {tooltip: {}},
 			config: {
 				errorHandler(err) {
 					errors.push(err)
@@ -67,4 +68,18 @@ describe('PasswordReset', () => {
 		expect(resetPassword).toHaveBeenCalledWith({body: {new_password: 'new-password', token: 'token'}})
 		expect(wrapper.text()).toContain('Failed to fetch')
 	})
+})
+
+it('preserves the entered password when toggling visibility', async () => {
+	const wrapper = mountPasswordReset([], true)
+	const input = wrapper.get('input[name="password"]')
+	await input.setValue('example-password-123')
+	const toggle = wrapper.get('button.password-field-type-toggle')
+	await toggle.trigger('click')
+	expect(input.attributes('type')).toBe('text')
+	expect((input.element as HTMLInputElement).value).toBe('example-password-123')
+	await toggle.trigger('click')
+	expect(input.attributes('type')).toBe('password')
+	expect((input.element as HTMLInputElement).value).toBe('example-password-123')
+	wrapper.unmount()
 })
