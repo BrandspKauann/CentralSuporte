@@ -1,72 +1,108 @@
 # Hirayama Suporte
 
 Plataforma de projetos e atendimento baseada no **Vikunja Community v2.8.0**.
-Mantém a lhama original, com a marca Hirayama Suporte. Inclui a correção que
-preserva a senha ao alternar sua visibilidade no cadastro, redefinição e troca.
+Interface com a lhama original e a marca Hirayama Suporte. A senha é preservada
+quando o usuário alterna sua visibilidade no cadastro, redefinição e troca.
 
-## Publicar a interface na Vercel
+## Implantação completa na Vercel
 
-1. Importe `BrandspKauann/Hirayama-Suporte` na Vercel.
-2. Mantenha **Root Directory** na raiz do repositório (`./`).
-3. Em **Node.js Version**, selecione **24.x**. O `vercel.mjs` configura instalação,
-   compilação, saída `frontend/dist` e rotas da aplicação.
-4. Cadastre a variável de ambiente **VITE_API_URL** com a raiz HTTPS pública da API
-   Docker, por exemplo `https://api.seudominio.com`, **sem `/api/v2`**.
-   Configure em Production e Preview se quiser usar a mesma API nos dois ambientes.
-5. Clique em Deploy. Se a variável estiver ausente ou apontar para localhost, a
-   compilação explica o que falta, em vez de publicar um login sem conexão.
+O arquivo `vercel.json` define dois serviços no mesmo projeto:
 
-`VITE_API_URL` é público. Senhas do banco, chaves e tokens nunca entram na Vercel
-nem no código da interface. Uma mudança nessa variável exige novo deploy.
+| Serviço | Execução | Caminho público |
+|---|---|---|
+| `frontend` | Vue/Vite | `/` e rotas da interface |
+| `app` | API Vikunja em container | `/api/*` |
 
-## API e PostgreSQL em Docker
+As rotas `/api/v1/*` e `/api/v2/*` chegam à API sem remover o prefixo.
+A interface usa a mesma origem e preserva os cookies de sessão. Não há bindings
+internos: o Vite gera arquivos estáticos, e quem chama `/api` é o navegador.
+`VITE_API_URL` não é necessária nessa implantação e pode ser removida da Vercel.
 
-A interface usa `/api` na Vercel, que encaminha as requisições à API Docker. Isso mantém os cookies de sessão na mesma origem e permite usar o domínio padrão vercel.app. O banco e os anexos
-usam volumes persistentes. O banco não expõe porta pública.
+1. Importe `BrandspKauann/Hirayama-Suporte` na Vercel, com raiz `./` e Node 24.x.
+2. Use a configuração de **Services** fornecida pelo repositório.
+3. Crie um PostgreSQL gerenciado pelo Marketplace da Vercel. A integração Supabase
+   também oferece armazenamento compatível com S3 para os anexos.
+4. Conecte o recurso ao projeto. O inicializador reconhece `POSTGRES_URL_NON_POOLING`,
+   `DATABASE_URL` ou `POSTGRES_URL` e converte para a configuração do Vikunja.
+   A conexão direta tem preferência para permitir as migrações do banco.
+5. Crie um bucket **privado** para anexos e obtenha suas credenciais S3.
+6. Configure as variáveis abaixo e execute Deploy.
 
-1. Use um servidor acessível pela internet, com Docker Compose instalado.
-2. Aponte o DNS de um subdomínio (ex.: `api.seudominio.com`) para o IP do servidor.
-   Libere as portas 80 e 443 para o Caddy emitir o certificado HTTPS.
-3. Entre em `deploy/docker` e copie `.env.example` para `.env`.
-4. Defina domínio, e-mail, origem exata da Vercel e duas chaves aleatórias fortes.
-   Uma forma de gerar cada chave: `openssl rand -hex 32`.
-5. Execute `docker compose up -d` dentro dessa pasta.
-6. Confira `https://api.seudominio.com/api/v2/info` e depois o login na Vercel.
+### Variáveis de ambiente
 
-Para criar a conta inicial, habilite `ENABLE_REGISTRATION=true`, execute
-`docker compose up -d`, crie a conta pela interface e volte para `false`, executando
-`docker compose up -d` novamente. Se adicionar um domínio próprio à interface,
-atualize `FRONTEND_ORIGIN` e reinicie o serviço `api`. Previews da Vercel têm origens
-próprias; só permita as que forem usadas, sem liberar todos os domínios.
+Defina no projeto Vercel; nunca coloque os valores secretos no GitHub.
+O modelo completo está em `deploy/vercel-api/.env.example`.
 
-**Docker no seu computador não cria um endereço público automaticamente.** Para
-usar esse computador como servidor é necessário configurar acesso externo e DNS;
-o endereço `localhost:3456` não funciona para visitantes da Vercel.
+| Variável | Valor |
+|---|---|
+| `DATABASE_URL` | Conexão PostgreSQL com TLS, se não for fornecida pela integração |
+| `VIKUNJA_SERVICE_SECRET` | Chave aleatória fixa, com pelo menos 64 caracteres |
+| `VIKUNJA_FILES_S3_ENDPOINT` | Endpoint HTTPS do armazenamento |
+| `VIKUNJA_FILES_S3_BUCKET` | Nome do bucket privado |
+| `VIKUNJA_FILES_S3_REGION` | Região do bucket |
+| `VIKUNJA_FILES_S3_ACCESSKEY` | Chave de acesso S3 |
+| `VIKUNJA_FILES_S3_SECRETKEY` | Chave secreta S3 |
+| `VIKUNJA_FILES_S3_USEPATHSTYLE` | `true` para Supabase Storage |
+| `VIKUNJA_SERVICE_PUBLICURL` | Opcional: URL HTTPS da interface; padrão `https://$VERCEL_URL/` |
+| `VIKUNJA_SERVICE_ENABLEREGISTRATION` | `false`; habilite temporariamente para criar a conta inicial |
 
-A implantação cria um banco novo. Os dados da instalação local não são enviados
-para o GitHub nem migrados automaticamente. Faça backup do PostgreSQL e do volume
-de anexos antes de migrar os dados. E-mails de redefinição de senha precisam de SMTP
-configurado no backend; não estão configurados neste pacote.
+Gere a chave fixa com `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`.
+A mesma chave precisa ser mantida nos próximos deployments para preservar sessões.
 
-## Desenvolvimento
+No Supabase, o endpoint S3 tem o formato
+`https://PROJECT_REF.supabase.co/storage/v1/s3`. Crie o bucket `hirayama-anexos`
+como privado, gere credenciais S3 no painel e use a região indicada pelo provedor.
+As chaves S3 não são as chaves públicas/secretas da API Supabase.
 
-Requer Node 24 e pnpm 12.16.1. Dentro de `frontend`:
+Não configure PostgreSQL, SQLite, MinIO ou anexos como serviços com disco local
+na Vercel: a persistência fica nos provedores gerenciados. A API exige PostgreSQL
+com TLS e S3 em produção; recusa iniciar com dados persistentes em disco temporário.
+Arquivos temporários, cache e logs podem usar `/tmp` e stdout.
+
+### O que foi validado e limitações
+
+O container usa o binário oficial v2.8.0, pois ainda não existem modificações no
+backend Go. As personalizações atuais ficam no frontend, compilado separadamente.
+O inicializador adapta `PORT`, conexão do banco, HTTPS e armazenamento persistente,
+sem mudar permissões, modelos ou o sistema de licença.
+
+A Vercel pode suspender instâncias sem tráfego. Os agendamentos internos do
+Vikunja não têm garantia de execução nesse período. WebSockets também precisam
+ser avaliados conforme os limites da plataforma; atualização em tempo real e
+lembretes agendados não estão validados nesta implantação. Projetos, tarefas,
+login e anexos usam as rotas HTTP normais. E-mails precisam de SMTP configurado.
+
+Uma implantação nova não migra os dados locais automaticamente. Faça backup e
+importe o PostgreSQL e os anexos antes de substituir uma instalação existente.
+
+## Desenvolvimento e validação
+
+Node 24, pnpm 12.16.1 e Docker disponíveis:
 
 ```sh
+cd frontend
 pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-Sem `VITE_API_URL`, a interface usa a API da mesma origem, como a instalação local.
-Para usar uma API separada em desenvolvimento, copie `frontend/.env.example` para
-`frontend/.env.local` e ajuste a URL. Configure também a origem local no CORS da API.
+Para testar os dois serviços juntos, configure as variáveis de armazenamento e
+execute `npx vercel dev --local` na raiz. `PORT` é fornecida pela Vercel e não deve
+ser fixada manualmente. As variáveis secretas de produção não entram em `.env`
+versionado nem no bundle da interface.
+
+Para validar o inicializador: `node --test deploy/vercel-api/config.test.mjs`.
+O CI verifica esse inicializador, a correção da senha e a compilação da interface.
+A configuração anterior com API em servidor Docker externo continua disponível
+como alternativa em `deploy/docker`, mas não participa do deploy Vercel Services.
 
 ## Origem e licença
 
-Código-fonte original: https://github.com/go-vikunja/vikunja (tag `v2.8.0`).
+Código original: https://github.com/go-vikunja/vikunja (tag `v2.8.0`).
 O histórico, a licença AGPL-3.0-or-later e os avisos originais foram preservados.
-Consulte `LICENSE` e `README.upstream.md`. O código correspondente às modificações
-está neste repositório público. Os fluxos de publicação do projeto original foram
-arquivados em `.github/upstream-workflows`; o CI deste projeto só valida a interface.
+Consulte `LICENSE` e `README.upstream.md`. O código das modificações está neste
+repositório público. Fluxos originais de publicação estão arquivados em
+`.github/upstream-workflows`.
 
-Documentação oficial da configuração: https://vercel.com/docs/project-configuration/vercel-ts e https://vercel.com/docs/routing/rewrites.
+Documentação: https://vercel.com/docs/services,
+https://vercel.com/docs/functions/runtimes/container,
+https://vercel.com/docs/marketplace-storage.

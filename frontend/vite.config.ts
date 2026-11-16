@@ -105,9 +105,6 @@ export default defineConfig(({command, mode}) => {
 
 function getBuildConfig(env: Record<string, string>) {
 	const apiUrl = (env.VITE_API_URL || '').trim().replace(/\/+$/, '')
-	if (env.VERCEL === '1' && !apiUrl) {
-		throw new Error('Configure VITE_API_URL na Vercel com o endereço HTTPS público da API em Docker.')
-	}
 	if (apiUrl) {
 		const parsed = new URL(apiUrl)
 		if (!['http:', 'https:'].includes(parsed.protocol) || parsed.username || parsed.password || parsed.search || parsed.hash || /\/api\/v[12]$/.test(parsed.pathname)) {
