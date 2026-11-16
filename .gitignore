@@ -55,3 +55,11 @@ PLAN.md
 plans/
 /.crush/
 /.playwright-mcp
+
+# Hirayama deployment credentials
+.env
+.env.*
+!.env.example
+!**/.env.example
+.vercel/
+compose.local.yaml

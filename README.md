@@ -1,66 +1,72 @@
-<img src="https://vikunja.io/images/vikunja-logo.svg" alt="" style="display: block;width: 50%;margin: 0 auto;" width="50%"/>
+# Hirayama Suporte
 
-[![Build Status](https://github.com/go-vikunja/vikunja/actions/workflows/ci.yml/badge.svg)](https://github.com/go-vikunja/vikunja/actions/workflows/ci.yml)
-[![License: AGPL-3.0-or-later](https://img.shields.io/badge/License-AGPL--3.0--or--later-blue.svg)](LICENSE)
-[![Install](https://img.shields.io/badge/download-v2.8.0-brightgreen.svg)](https://vikunja.io/docs/installing)
-[![Docker Pulls](https://img.shields.io/docker/pulls/vikunja/vikunja.svg)](https://hub.docker.com/r/vikunja/vikunja/)
-[![OpenAPI Docs](https://img.shields.io/badge/swagger-docs-brightgreen.svg)](https://try.vikunja.io/api/v2/docs)
+Plataforma de projetos e atendimento baseada no **Vikunja Community v2.8.0**.
+Mantém a lhama original, com a marca Hirayama Suporte. Inclui a correção que
+preserva a senha ao alternar sua visibilidade no cadastro, redefinição e troca.
 
-# Vikunja
+## Publicar a interface na Vercel
 
-> The task manager you actually own. 
+1. Importe `BrandspKauann/Hirayama-Suporte` na Vercel.
+2. Mantenha **Root Directory** na raiz do repositório (`./`).
+3. Em **Node.js Version**, selecione **24.x**. O `vercel.mjs` configura instalação,
+   compilação, saída `frontend/dist` e rotas da aplicação.
+4. Cadastre a variável de ambiente **VITE_API_URL** com a raiz HTTPS pública da API
+   Docker, por exemplo `https://api.seudominio.com`, **sem `/api/v2`**.
+   Configure em Production e Preview se quiser usar a mesma API nos dois ambientes.
+5. Clique em Deploy. Se a variável estiver ausente ou apontar para localhost, a
+   compilação explica o que falta, em vez de publicar um login sem conexão.
 
-If Vikunja is useful to you, please consider [supporting the project](https://vikunja.io/support/). You can [buy a coffee](https://www.buymeacoffee.com/kolaente), [sponsor on GitHub](https://github.com/sponsors/kolaente) or buy [a sticker pack](https://vikunja.io/stickers).
-We're also offering [a hosted version of Vikunja](https://vikunja.cloud/) if you want a hassle-free solution for yourself or your team.
-If you or your company needs admin panel, audit logs or time tracking, check out [Vikunja Pro](https://vikunja.io/pro/).
+`VITE_API_URL` é público. Senhas do banco, chaves e tokens nunca entram na Vercel
+nem no código da interface. Uma mudança nessa variável exige novo deploy.
 
-> [!NOTE]
-> For the development of Vikunja, we're using LLM-Assisted coding tools in various parts of the codebase.
-> Most contributions made @tink-bot are built that way.
+## API e PostgreSQL em Docker
 
-## Table of contents
+A interface usa `/api` na Vercel, que encaminha as requisições à API Docker. Isso mantém os cookies de sessão na mesma origem e permite usar o domínio padrão vercel.app. O banco e os anexos
+usam volumes persistentes. O banco não expõe porta pública.
 
-- [Security Reports](#security-reports)
-- [Features](#features)
-- [Docs](#docs)
-	- [Roadmap](#roadmap)
-- [Contributing](#contributing)
-- [License](#license)
-	- [Unsplash Images](#unsplash-images)
+1. Use um servidor acessível pela internet, com Docker Compose instalado.
+2. Aponte o DNS de um subdomínio (ex.: `api.seudominio.com`) para o IP do servidor.
+   Libere as portas 80 e 443 para o Caddy emitir o certificado HTTPS.
+3. Entre em `deploy/docker` e copie `.env.example` para `.env`.
+4. Defina domínio, e-mail, origem exata da Vercel e duas chaves aleatórias fortes.
+   Uma forma de gerar cada chave: `openssl rand -hex 32`.
+5. Execute `docker compose up -d` dentro dessa pasta.
+6. Confira `https://api.seudominio.com/api/v2/info` e depois o login na Vercel.
 
-## Security Reports
+Para criar a conta inicial, habilite `ENABLE_REGISTRATION=true`, execute
+`docker compose up -d`, crie a conta pela interface e volte para `false`, executando
+`docker compose up -d` novamente. Se adicionar um domínio próprio à interface,
+atualize `FRONTEND_ORIGIN` e reinicie o serviço `api`. Previews da Vercel têm origens
+próprias; só permita as que forem usadas, sem liberar todos os domínios.
 
-If you find any security-related issues you don't want to disclose publicly, please use [the contact information on our website](https://vikunja.io/contact/#security).
+**Docker no seu computador não cria um endereço público automaticamente.** Para
+usar esse computador como servidor é necessário configurar acesso externo e DNS;
+o endereço `localhost:3456` não funciona para visitantes da Vercel.
 
-## Features
+A implantação cria um banco novo. Os dados da instalação local não são enviados
+para o GitHub nem migrados automaticamente. Faça backup do PostgreSQL e do volume
+de anexos antes de migrar os dados. E-mails de redefinição de senha precisam de SMTP
+configurado no backend; não estão configurados neste pacote.
 
-See [the features page](https://vikunja.io/features/) on our website for a more exhaustive list or 
-try it on [try.vikunja.io](https://try.vikunja.io)!
+## Desenvolvimento
 
-## Docs
+Requer Node 24 e pnpm 12.16.1. Dentro de `frontend`:
 
-* [Installing](https://vikunja.io/docs/installing/)
-* [Build from source](https://vikunja.io/docs/build-from-sources/)
-* [Development setup](https://vikunja.io/docs/development/)
-* [Magefile](https://vikunja.io/docs/magefile/)
-* [Testing](https://vikunja.io/docs/testing/)
+```sh
+pnpm install --frozen-lockfile
+pnpm dev
+```
 
-All docs can be found on [the Vikunja home page](https://vikunja.io/docs/).
+Sem `VITE_API_URL`, a interface usa a API da mesma origem, como a instalação local.
+Para usar uma API separada em desenvolvimento, copie `frontend/.env.example` para
+`frontend/.env.local` e ajuste a URL. Configure também a origem local no CORS da API.
 
-### Roadmap
+## Origem e licença
 
-See [the roadmap](https://my.vikunja.cloud/share/QFyzYEmEYfSyQfTOmIRSwLUpkFjboaBqQCnaPmWd/auth) (hosted on Vikunja!) for more!
+Código-fonte original: https://github.com/go-vikunja/vikunja (tag `v2.8.0`).
+O histórico, a licença AGPL-3.0-or-later e os avisos originais foram preservados.
+Consulte `LICENSE` e `README.upstream.md`. O código correspondente às modificações
+está neste repositório público. Os fluxos de publicação do projeto original foram
+arquivados em `.github/upstream-workflows`; o CI deste projeto só valida a interface.
 
-## Contributing
-
-Please check out the contribution guidelines on [the website](https://vikunja.io/docs/development/).
-
-## License
-
-Most of this repository is licensed under [AGPL‑3.0‑or‑later](LICENSE).
-The contents of [`desktop/`](desktop/) are licensed under
-[GPL‑3.0‑or‑later](desktop/LICENSE).
-
-### Unsplash Images
-
-Background images from Unsplash are distributed under the [Unsplash License](https://unsplash.com/license). The license requires giving credit to the photographer and Unsplash. See [Unsplash’s terms](https://unsplash.com/terms) for more information.
+Documentação oficial da configuração: https://vercel.com/docs/project-configuration/vercel-ts e https://vercel.com/docs/routing/rewrites.

@@ -47,9 +47,9 @@ function getSentryConfig(env: Record<string, string>): SentryVitePluginOptions {
 		telemetry: false,
 
 		// sourcemaps: {
-			// assets: [], // TODO
-			// deleteFilesAfterUpload: [], // TODO define glob
-			// rewriteSources // might need that instead of `urlPrefix`
+		// assets: [], // TODO
+		// deleteFilesAfterUpload: [], // TODO define glob
+		// rewriteSources // might need that instead of `urlPrefix`
 		// },
 
 		release: {
@@ -104,6 +104,19 @@ export default defineConfig(({command, mode}) => {
 })
 
 function getBuildConfig(env: Record<string, string>) {
+	const apiUrl = (env.VITE_API_URL || '').trim().replace(/\/+$/, '')
+	if (env.VERCEL === '1' && !apiUrl) {
+		throw new Error('Configure VITE_API_URL na Vercel com o endereço HTTPS público da API em Docker.')
+	}
+	if (apiUrl) {
+		const parsed = new URL(apiUrl)
+		if (!['http:', 'https:'].includes(parsed.protocol) || parsed.username || parsed.password || parsed.search || parsed.hash || /\/api\/v[12]$/.test(parsed.pathname)) {
+			throw new Error('VITE_API_URL deve ser a raiz pública da API, sem credenciais, parâmetros ou /api/v1 e /api/v2.')
+		}
+		if (env.VERCEL === '1' && (parsed.protocol !== 'https:' || ['localhost', '127.0.0.1', '[::1]'].includes(parsed.hostname))) {
+			throw new Error('VITE_API_URL na Vercel precisa apontar para uma API pública com HTTPS.')
+		}
+	}
 	const workboxPkgPath = resolve(dirname(pathSrc), 'node_modules/workbox-precaching/package.json')
 	const workboxVersion = JSON.parse(readFileSync(workboxPkgPath, 'utf-8')).version
 
@@ -136,12 +149,19 @@ function getBuildConfig(env: Record<string, string>) {
 					postcssPresetEnv({
 						features: {
 							'logical-properties-and-values': false,
-						}
+						},
 					}),
 				],
 			},
 		},
 		plugins: [
+			{
+				name: 'hirayama-api-url',
+				transformIndexHtml(html: string) {
+					const browserApiUrl = env.VERCEL === '1' ? '' : apiUrl
+					return html.replace('window.API_URL = \'\'', `window.API_URL = ${JSON.stringify(browserApiUrl).replace(/</g, '\\u003c')}`)
+				},
+			},
 			tailwindcss(),
 			vue(),
 			svgLoader({
@@ -171,8 +191,8 @@ function getBuildConfig(env: Record<string, string>) {
 				injectRegister: false,
 				useCredentials: true,
 				manifest: {
-					name: 'Vikunja',
-					short_name: 'Vikunja',
+					name: 'Hirayama Suporte',
+					short_name: 'Hirayama Suporte',
 					theme_color: '#1973ff',
 					icons: [
 						{
