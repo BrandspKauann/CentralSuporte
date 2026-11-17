@@ -20,6 +20,7 @@ test('maps provider credentials, port and HTTPS without losing escaped passwords
   assert.equal(config.VIKUNJA_DATABASE_PASSWORD, 'p@ss:word')
   assert.equal(config.VIKUNJA_DATABASE_HOST, 'db.example.com:6543')
   assert.equal(config.VIKUNJA_DATABASE_DATABASE, 'tasks')
+  assert.equal(config.VIKUNJA_DATABASE_SCHEMA, 'hirayama')
   assert.equal(config.VIKUNJA_DATABASE_SSLMODE, 'verify-full')
   assert.equal(config.VIKUNJA_SERVICE_INTERFACE, ':9000')
   assert.equal(config.VIKUNJA_SERVICE_PUBLICURL, 'https://hirayama.example.com/')

@@ -36,6 +36,7 @@ O modelo completo está em `deploy/vercel-api/.env.example`.
 | Variável | Valor |
 |---|---|
 | `DATABASE_URL` | Conexão PostgreSQL com TLS, se não for fornecida pela integração |
+| `VIKUNJA_DATABASE_SCHEMA` | `hirayama` (padrão); mantenha fora dos schemas expostos pela Data API do Supabase |
 | `VIKUNJA_SERVICE_SECRET` | Chave aleatória fixa, com pelo menos 64 caracteres |
 | `VIKUNJA_FILES_S3_ENDPOINT` | Endpoint HTTPS do armazenamento |
 | `VIKUNJA_FILES_S3_BUCKET` | Nome do bucket privado |

@@ -12,6 +12,7 @@ export function runtimeConfig(input) {
   env.VIKUNJA_SERVICE_INTERFACE = `:${port}`
   env.VIKUNJA_SERVICE_ROOTPATH = '/tmp/hirayama'
   env.VIKUNJA_DATABASE_TYPE = 'postgres'
+  env.VIKUNJA_DATABASE_SCHEMA ||= 'hirayama'
 
   const connection = env.POSTGRES_URL_NON_POOLING || env.DATABASE_URL || env.POSTGRES_URL
   if (connection) {
