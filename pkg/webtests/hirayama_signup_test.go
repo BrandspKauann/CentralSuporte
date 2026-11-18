@@ -77,7 +77,7 @@ func TestHirayamaCompanyIsolation(t *testing.T) {
 	require.NotEqual(t, alpha.DefaultProjectID, beta.DefaultProjectID)
 	for _, account := range []*user.User{&alpha, &beta} {
 		db.AssertMissing(t, "users_projects", map[string]interface{}{"user_id": account.ID, "project_id": 1})
-		db.AssertExists(t, "users_projects", map[string]interface{}{"user_id": 1, "project_id": account.DefaultProjectID, "permission": 2}, false)
+		db.AssertExists(t, "projects", map[string]interface{}{"id": account.DefaultProjectID, "owner_id": 1}, false)
 	}
 	rec = register("duplicate-alpha", " alpha ", "test-invitation")
 	require.GreaterOrEqual(t, rec.Code, 400, rec.Body.String())
@@ -116,6 +116,14 @@ func TestHirayamaCompanyIsolation(t *testing.T) {
 		e.ServeHTTP(rec, req)
 		return rec
 	}
+	deniedAdmin := request(http.MethodPatch, fmt.Sprintf("/api/v2/teams/%d", loginData.Company.ID), `{"name":"Unauthorized company rename"}`, loginData.Token)
+	require.Equal(t, http.StatusForbidden, deniedAdmin.Code, deniedAdmin.Body.String())
+	deniedDelete := request(http.MethodDelete, fmt.Sprintf("/api/v2/projects/%d", alpha.DefaultProjectID), "", loginData.Token)
+	require.Equal(t, http.StatusForbidden, deniedDelete.Code, deniedDelete.Body.String())
+	privateTeam := request(http.MethodPost, "/api/v2/teams", `{"name":"Shadow"}`, loginData.Token)
+	require.Equal(t, http.StatusCreated, privateTeam.Code, privateTeam.Body.String())
+	privateTeamLogin := adminReq(t, e, http.MethodPost, "/api/v2/login", nil, loginBody("Shadow"))
+	require.Equal(t, http.StatusForbidden, privateTeamLogin.Code, privateTeamLogin.Body.String())
 	createdTask := request(http.MethodPost, fmt.Sprintf("/api/v2/projects/%d/tasks", alpha.DefaultProjectID), `{"title":"Alpha private task"}`, loginData.Token)
 	require.Equal(t, http.StatusCreated, createdTask.Code, createdTask.Body.String())
 	var task struct {
