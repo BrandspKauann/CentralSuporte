@@ -10,6 +10,7 @@ Lint before committing: `mage lint:fix` for backend changes, `cd frontend && pnp
 
 ## Always
 
+- Hirayama ecosystem work must be recorded as Kauann Pires' first-person work diary in Hirayama Suporte, using existing site labels and verified task states. Use the API directly, not browser debugging; see [worklog integration](tools/hirayama/README.md). Find the matching task first, record significant analyses and checks as dated comments, and read back every completed record. If API credentials are unavailable, keep a local pending record and report it honestly.
 - Every new API route goes on `/api/v2`. `/api/v1` is frozen (bug fixes and ports to v2 only). See [API design](.agents/docs/api.md).
 - Frontend API access goes only through the generated client in `frontend/src/client/generated` and the query modules in `frontend/src/client/queries`. See [API design](.agents/docs/api.md#frontend-clients).
 - Never hand-edit generated files: `pkg/swagger/` (CI regenerates) and `config.yml.sample` (from `config-raw.json`).
