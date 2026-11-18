@@ -166,7 +166,8 @@ function getBuildConfig(env: Record<string, string>) {
 				// we don't need to optimize them again.
 				svgo: false,
 			}),
-			VueI18nPlugin({
+			// Vitest reads JSON messages directly; the build plugin emits Vite-only virtual modules.
+			!process.env.VITEST && VueI18nPlugin({
 				// TODO: only install needed stuff
 				// Whether to install the full set of APIs, components, etc. provided by Vue I18n.
 				// By default, all of them will be installed.
@@ -188,8 +189,8 @@ function getBuildConfig(env: Record<string, string>) {
 				injectRegister: false,
 				useCredentials: true,
 				manifest: {
-					name: 'Hirayama Suporte',
-					short_name: 'Hirayama Suporte',
+					name: 'Central de Suporte',
+					short_name: 'Central de Suporte',
 					theme_color: '#1973ff',
 					icons: [
 						{

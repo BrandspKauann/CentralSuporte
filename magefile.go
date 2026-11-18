@@ -38,7 +38,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
 
 	apiv2 "code.vikunja.io/api/pkg/routes/api/v2"
@@ -304,26 +303,6 @@ func getRandomPort(ctx context.Context) (int, error) {
 	return l.Addr().(*net.TCPAddr).Port, nil
 }
 
-// setProcessGroup configures a command to run in its own process group,
-// so that all child processes can be killed together.
-func setProcessGroup(cmd *exec.Cmd) {
-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-}
-
-// killProcessGroup sends a signal to the entire process group of the given command.
-func killProcessGroup(cmd *exec.Cmd) error {
-	if cmd.Process == nil {
-		return nil
-	}
-	if pgid, err := syscall.Getpgid(cmd.Process.Pid); err == nil { // use best-effort to kill full process group
-		err = syscall.Kill(-pgid, syscall.SIGTERM)
-		if err != nil {
-			return err
-		}
-	}
-	return cmd.Wait()
-}
-
 // waitForHTTP polls a URL until it returns a 200 status or the timeout expires.
 func waitForHTTP(ctx context.Context, url string, timeout time.Duration) error {
 	deadline := time.Now().Add(timeout)
@@ -432,6 +411,12 @@ func (Test) Web(ctx context.Context) error {
 	// We run everything sequentially and not in parallel to prevent issues with real test databases
 	args := []string{"test", goDetectVerboseFlag(), "-p", "1", "-timeout", "45m", "./pkg/webtests"}
 	return runAndStreamOutput(ctx, "go", args...)
+}
+
+// Hirayama runs invitation policy, HTTP enforcement and registration integration tests.
+func (Test) Hirayama(ctx context.Context) error {
+	mg.Deps(initVars, ensureFrontendDistExists)
+	return runAndStreamOutput(ctx, "go", "test", "-p", "1", "-timeout", "15m", "-run", "^TestHirayama", "./pkg/modules/hirayama", "./pkg/routes", "./pkg/webtests")
 }
 
 // Filter runs every test matching the given `go test -run` filter.

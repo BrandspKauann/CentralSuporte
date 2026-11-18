@@ -19,7 +19,9 @@ package db
 import (
 	"embed"
 	"fmt"
+	"io/fs"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"code.vikunja.io/api/pkg/config"
@@ -34,6 +36,13 @@ var (
 	//go:embed fixtures
 	fixturesFS embed.FS
 )
+
+// Fixture loaders may join paths with Windows separators, while embed.FS uses '/'.
+type portableFixtureFS struct{ fs.FS }
+
+func (f portableFixtureFS) Open(name string) (fs.File, error) {
+	return f.FS.Open(strings.ReplaceAll(name, "\\", "/"))
+}
 
 // InitFixtures initialize test fixtures for a test database
 func InitFixtures(tablenames ...string) (err error) {
@@ -52,7 +61,7 @@ func InitFixtures(tablenames ...string) (err error) {
 	}
 
 	loaderOptions := []func(loader *testfixtures.Loader) error{
-		testfixtures.FS(fixturesFS),
+		testfixtures.FS(portableFixtureFS{fixturesFS}),
 		testfixtures.Database(x.DB().DB),
 		testfixtures.Dialect(GetDialect()),
 		testfixtures.DangerousSkipTestDatabaseCheck(),

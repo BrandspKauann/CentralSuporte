@@ -258,6 +258,7 @@ export const useAuthStore = defineStore('auth', () => {
 
 	// Logs a user in with a set of credentials.
 	async function login(credentials: {
+		companyName?: string,
 		username?: string,
 		password?: string,
 		totpPasscode?: string,
@@ -271,6 +272,7 @@ export const useAuthStore = defineStore('auth', () => {
 		try {
 			const response = await authLogin({
 				body: {
+					company_name: credentials.companyName,
 					username: credentials.username,
 					password: credentials.password,
 					totp_passcode: credentials.totpPasscode,
@@ -281,6 +283,7 @@ export const useAuthStore = defineStore('auth', () => {
 
 			// Tell others the user is authenticated
 			await checkAuth()
+			return response.data.company
 		} catch (e) {
 			if (
 				(e as VikunjaErrorModel)?.code === ERROR_CODE_TOTP_REQUIRED &&
@@ -299,7 +302,7 @@ export const useAuthStore = defineStore('auth', () => {
 	 * Registers a new user and logs them in.
 	 * Not sure if this is the right place to put the logic in, maybe a separate js component would be better suited. 
 	 */
-	async function register(credentials: RegisterUserRequestWritable, language: string|null = null, viaInvite = false) {
+	async function register(credentials: RegisterUserRequestWritable, language: string|null = null, viaInvite = false, signupCode = '') {
 		setIsLoading(true)
 		
 		if (!language) {
@@ -308,15 +311,15 @@ export const useAuthStore = defineStore('auth', () => {
 		
 		try {
 			if (viaInvite) {
-				await registerViaInviteLink({...credentials, language})
+				await registerViaInviteLink({...credentials, language}, signupCode)
 			} else {
-				await authRegister({body: {...credentials, language}})
+				await authRegister({body: {...credentials, language}, headers: {'X-Hirayama-Signup-Code': signupCode}})
 			}
-			return await login(credentials)
+			return await login({...credentials, companyName: credentials.company_name})
 		} catch (e) {
 			const problem = e as VikunjaErrorModel & {message?: string}
 			if (problem.code === 2002 && parseValidationErrors(problem).language) {
-				return register(credentials, 'en', viaInvite)
+				return register(credentials, 'en', viaInvite, signupCode)
 			}
 
 			if (problem.detail) {
@@ -332,8 +335,8 @@ export const useAuthStore = defineStore('auth', () => {
 		}
 	}
 
-	function registerWithInvite(credentials: RegisterUserRequestWritable) {
-		return register(credentials, null, true)
+	function registerWithInvite(credentials: RegisterUserRequestWritable, signupCode = '') {
+		return register(credentials, null, true, signupCode)
 	}
 
 	async function openIdAuth({provider, code, totpPasscode}: {provider: string, code: string, totpPasscode?: string}) {

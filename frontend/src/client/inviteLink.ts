@@ -30,11 +30,11 @@ export async function checkInviteLink() {
 	return inviteLinksCheck({body: {token: currentToken}})
 }
 
-export async function registerViaInviteLink(credentials: RegisterUserRequestWritable) {
+export async function registerViaInviteLink(credentials: RegisterUserRequestWritable, signupCode = '') {
 	if (token === null) throw new Error('No invitation')
 	const currentToken = token
 	const {authRegister} = await import('./generated')
-	const response = await authRegister({body: {...credentials, invite_token: currentToken}})
+	const response = await authRegister({body: {...credentials, invite_token: currentToken}, headers: {'X-Hirayama-Signup-Code': signupCode}})
 	if (token === currentToken) token = null
 	return response
 }

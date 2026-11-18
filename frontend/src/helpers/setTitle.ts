@@ -1,5 +1,5 @@
 export function setTitle(title : undefined | string) {
 	document.title = (typeof title === 'undefined' || title === '')
-		? 'Hirayama Suporte'
-		: `${title} | Hirayama Suporte`
+		? 'Central de Suporte'
+		: `${title} | Central de Suporte`
 }

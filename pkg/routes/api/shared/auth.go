@@ -18,6 +18,7 @@ package shared
 
 import (
 	"context"
+	"strings"
 
 	"code.vikunja.io/api/pkg/config"
 	"code.vikunja.io/api/pkg/db"
@@ -29,6 +30,7 @@ import (
 	"code.vikunja.io/api/pkg/modules/auth/ldap"
 	"code.vikunja.io/api/pkg/modules/auth/openid"
 	"code.vikunja.io/api/pkg/modules/avatar"
+	"code.vikunja.io/api/pkg/modules/hirayama"
 	"code.vikunja.io/api/pkg/modules/keyvalue"
 	"code.vikunja.io/api/pkg/user"
 
@@ -39,6 +41,7 @@ import (
 // username, password and email (from APIUserPassword) plus the new user's
 // preferred language.
 type UserRegister struct {
+	CompanyName string `json:"company_name,omitempty" maxLength:"250" doc:"Company name for Central de Suporte registration."`
 	// The language of the new user. Must be a valid IETF BCP 47 language code and exist in Vikunja.
 	Language string `json:"language" valid:"language" doc:"The language of the new user as an IETF BCP 47 code (e.g. en, de-DE)."`
 	user.APIUserPassword
@@ -49,6 +52,9 @@ type UserRegister struct {
 // The caller is responsible for the registration-enabled gate and input
 // validation; both v1 and v2 share this body.
 func RegisterUser(ctx context.Context, in *UserRegister) (*user.User, error) {
+	if hirayama.SignupEnabled() && !hirayama.RegistrationApproved(ctx) {
+		return nil, models.ErrGenericForbidden{}
+	}
 	s := db.NewSession()
 	defer s.Close()
 	// Discards events queued during a rolled-back transaction; a no-op once
@@ -56,6 +62,7 @@ func RegisterUser(ctx context.Context, in *UserRegister) (*user.User, error) {
 	defer events.CleanupPending(s)
 
 	newUser, err := models.RegisterUser(s, &user.User{
+		Name:     strings.TrimSpace(in.CompanyName),
 		Username: in.Username,
 		Password: in.Password,
 		Email:    in.Email,
@@ -66,6 +73,12 @@ func RegisterUser(ctx context.Context, in *UserRegister) (*user.User, error) {
 		return nil, err
 	}
 
+	if hirayama.SignupEnabled() {
+		if err := CreateCompanyWorkspace(s, newUser, in.CompanyName); err != nil {
+			_ = s.Rollback()
+			return nil, err
+		}
+	}
 	if err := CommitRegistration(ctx, s); err != nil {
 		return nil, err
 	}
@@ -117,6 +130,11 @@ func AuthenticateUserCredentials(ctx context.Context, login *user.Login) (*user.
 
 	if err := user.CheckTOTPCountingFailures(s, u, login.TOTPPasscode); err != nil {
 		return nil, err
+	}
+	if hirayama.SignupEnabled() {
+		if _, err := FindCompanyWorkspace(s, u, login.CompanyName); err != nil {
+			return nil, err
+		}
 	}
 
 	if err := keyvalue.Del(u.GetFailedTOTPAttemptsKey()); err != nil {

@@ -46,7 +46,9 @@ export function runtimeConfig(input) {
   if (required('VIKUNJA_SERVICE_SECRET').length < 64) {
     throw new Error('VIKUNJA_SERVICE_SECRET precisa ter pelo menos 64 caracteres e ser fixa entre instâncias.')
   }
-  env.VIKUNJA_SERVICE_ENABLEREGISTRATION ||= 'false'
+  env.HIRAYAMA_SIGNUP_ENABLED = 'true'
+  env.HIRAYAMA_SUPPORT_USER_ID ||= '1'
+  env.VIKUNJA_SERVICE_ENABLEREGISTRATION = 'true'
   env.VIKUNJA_CORS_ENABLE = 'false' // Browser and API share the Vercel domain.
   env.VIKUNJA_FILES_TYPE = 's3' // Never put persistent attachments in /tmp.
   env.VIKUNJA_FILES_BASEPATH ||= 'hirayama'

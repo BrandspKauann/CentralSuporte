@@ -49,6 +49,7 @@ func IsErrUserStatusError(err error) bool {
 
 // Login Object to recive user credentials in JSON format
 type Login struct {
+	CompanyName string `json:"company_name,omitempty" maxLength:"250" doc:"The company to access. Requires membership in that company."`
 	// The username used to log in.
 	Username string `json:"username"`
 	// The password for the user.

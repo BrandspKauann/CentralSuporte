@@ -1,4 +1,6 @@
 files/
+.git/
+.vercel/
 dist/
 logs/
 docs/

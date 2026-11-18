@@ -9,6 +9,7 @@ test.describe('Registration', () => {
 		await setupApiUrl(page)
 		await UserFactory.create(1, {
 			username: 'test',
+			email: 'existing@example.com',
 		})
 		await page.goto('/')
 		await page.evaluate(() => localStorage.removeItem('token'))
@@ -16,7 +17,6 @@ test.describe('Registration', () => {
 
 	test('Should work without issues', async ({page}) => {
 		const fixture = {
-			username: 'testuser',
 			password: '12345678',
 			email: 'testuser@example.com',
 		}
@@ -24,12 +24,16 @@ test.describe('Registration', () => {
 		// Install clock before navigation so app observes mocked time for greeting
 		await page.clock.install({time: new Date(1625656161057)}) // 13:00
 		await page.goto('/register')
-		await page.locator('#username').fill(fixture.username)
+		await expect(page.locator('#username')).toHaveCount(0)
+		await page.locator('#company-name').fill('Test Company')
 		await page.locator('#email').fill(fixture.email)
 		await page.locator('#password').fill(fixture.password)
+		await page.locator('#signup-code').fill(process.env.HIRAYAMA_TEST_SIGNUP_CODE || 'test-invitation')
+		const registered = page.waitForResponse(response => response.url().endsWith('/api/v2/register') && response.request().method() === 'POST')
 		await page.locator('#register-submit').click()
+		const created = await (await registered).json()
 		await expect(page).toHaveURL('/')
-		await expect(page.locator('main h1')).toContainText(fixture.username)
+		await expect(page.locator('main h1')).toContainText(created.name || created.username)
 	})
 
 	test('Should show a confirmation notice when the email needs to be verified', async ({browser, baseURL, request}) => {
@@ -46,12 +50,15 @@ test.describe('Registration', () => {
 			}, apiUrl)
 			const page = await context.newPage()
 			await page.goto('/register')
-			await page.locator('#username').fill(username)
+			await page.locator('#company-name').fill('Mail Company')
 			await page.locator('#email').fill(email)
 			await page.locator('#password').fill('12345678')
+			await page.locator('#signup-code').fill(process.env.HIRAYAMA_TEST_SIGNUP_CODE || 'test-invitation')
+			const registered = page.waitForResponse(response => response.url().endsWith('/api/v2/register') && response.request().method() === 'POST')
 			const loginUrl = `${apiUrl}/api/v2/login`
 			const login = page.waitForResponse(response => response.url() === loginUrl && response.request().method() === 'POST')
 			await page.locator('#register-submit').click()
+			const created = await (await registered).json()
 			expect((await login).status()).toBe(412)
 			await expect(page.locator('div.message.success')).toContainText('check your inbox')
 			await expect(page.locator('div.message.danger')).not.toBeVisible()
@@ -73,11 +80,12 @@ test.describe('Registration', () => {
 			expect(confirmationUrl).toBeDefined()
 			await page.goto(confirmationUrl!)
 			await expect(page.locator('div.message.success')).toContainText('You successfully confirmed your email')
-			await page.locator('#username').fill(username)
+			await page.locator('#company-name').fill('Mail Company')
+			await page.locator('#username').fill(email)
 			await page.locator('#password').fill('12345678')
 			await page.getByRole('button', {name: 'Login', exact: true}).click()
 			await expect(page).toHaveURL(publicUrl)
-			await expect(page.locator('main h1')).toContainText(username)
+			await expect(page.locator('main h1')).toContainText(created.name || created.username)
 		} finally {
 			await context.close()
 		}
@@ -85,16 +93,16 @@ test.describe('Registration', () => {
 
 	test('Should fail', async ({page}) => {
 		const fixture = {
-			username: 'test',
 			password: '12345678',
-			email: 'testuser@example.com',
+			email: 'existing@example.com',
 		}
 
 		await page.goto('/register')
-		await page.locator('#username').fill(fixture.username)
+		await page.locator('#company-name').fill('Duplicate Company')
 		await page.locator('#email').fill(fixture.email)
 		await page.locator('#password').fill(fixture.password)
+		await page.locator('#signup-code').fill(process.env.HIRAYAMA_TEST_SIGNUP_CODE || 'test-invitation')
 		await page.locator('#register-submit').click()
-		await expect(page.locator('div.message.danger')).toContainText('A user with this username already exists.')
+		await expect(page.locator('div.message.danger')).toContainText('A user with this email address already exists.')
 	})
 })

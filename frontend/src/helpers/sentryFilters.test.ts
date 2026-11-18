@@ -348,6 +348,10 @@ describe('generated transport errors', () => {
 })
 
 describe('redactSensitiveParams', () => {
+	it('removes invitation codes from captured request headers', () => {
+		expect(redactSensitiveParams({request: {headers: {'X-Hirayama-Signup-Code': 'test-code'}}}))
+			.toEqual({request: {headers: {'X-Hirayama-Signup-Code': '[Filtered]'}}})
+	})
 	it.each([
 		['https://vikunja.example/?userPasswordReset=abc123', 'https://vikunja.example/?userPasswordReset=[Filtered]'],
 		['/login?foo=1&accountDeletionConfirm=abc123&bar=2', '/login?foo=1&accountDeletionConfirm=[Filtered]&bar=2'],

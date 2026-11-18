@@ -193,6 +193,10 @@ export type AuthTokenBodyBody = {
      */
     readonly $schema?: string;
     /**
+     * The company selected for this login, after membership verification.
+     */
+    readonly company?: CompanyWorkspace;
+    /**
      * The short-lived JWT auth token. Send it as a bearer token on subsequent requests.
      */
     readonly token?: string;
@@ -464,6 +468,12 @@ export type ColumnMapping = {
      * The header name of the CSV column, for display.
      */
     column_name?: string;
+};
+
+export type CompanyWorkspace = {
+    id?: number;
+    name?: string;
+    project_ids?: Array<number> | null;
 };
 
 export type ConnectionSettings = {
@@ -1123,6 +1133,10 @@ export type Login = {
      * A URL to the JSON Schema for this object.
      */
     readonly $schema?: string;
+    /**
+     * The company to access. Requires membership in that company.
+     */
+    company_name?: string;
     long_token?: boolean;
     password?: string;
     totp_passcode?: string;
@@ -2044,6 +2058,10 @@ export type RegisterUserRequest = {
      * A URL to the JSON Schema for this object.
      */
     readonly $schema?: string;
+    /**
+     * Company name for Central de Suporte registration.
+     */
+    company_name?: string;
     email?: string;
     /**
      * Invitation token. Allows registration when public signup is disabled and joins the invited teams.
@@ -4125,6 +4143,10 @@ export type AuthLinkShareRequestWritable = {
     password?: string;
 };
 
+export type AuthTokenBodyBodyWritable = {
+    [key: string]: never;
+};
+
 export type AuthorizeRequestWritable = {
     client_id?: string;
     code_challenge?: string;
@@ -4530,6 +4552,10 @@ export type LinkSharingWritable = {
 };
 
 export type LoginWritable = {
+    /**
+     * The company to access. Requires membership in that company.
+     */
+    company_name?: string;
     long_token?: boolean;
     password?: string;
     totp_passcode?: string;
@@ -5002,6 +5028,10 @@ export type ReactionWritable = {
 };
 
 export type RegisterUserRequestWritable = {
+    /**
+     * Company name for Central de Suporte registration.
+     */
+    company_name?: string;
     email?: string;
     /**
      * Invitation token. Allows registration when public signup is disabled and joins the invited teams.

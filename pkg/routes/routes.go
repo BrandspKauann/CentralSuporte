@@ -167,6 +167,7 @@ func NewEcho() *echo.Echo {
 
 	// panic recover
 	e.Use(middleware.Recover())
+	e.Use(hirayamaSignupGuard)
 
 	// Normalize PHP-style `foo[]=...` query params to `foo=...` before any
 	// handler binds them. Runs globally so both /api/v1 and /api/v2 benefit.

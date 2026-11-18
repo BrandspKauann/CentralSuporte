@@ -1,7 +1,7 @@
-# Hirayama Suporte
+# Central de Suporte
 
 Plataforma de projetos e atendimento baseada no **Vikunja Community v2.8.0**.
-Interface com a lhama original e a marca Hirayama Suporte. A senha é preservada
+Interface com a lhama original e a marca Central de Suporte. A senha é preservada
 quando o usuário alterna sua visibilidade no cadastro, redefinição e troca.
 
 ## Implantação completa na Vercel
@@ -45,7 +45,8 @@ O modelo completo está em `deploy/vercel-api/.env.example`.
 | `VIKUNJA_FILES_S3_SECRETKEY` | Chave secreta S3 |
 | `VIKUNJA_FILES_S3_USEPATHSTYLE` | `true` para Supabase Storage |
 | `VIKUNJA_SERVICE_PUBLICURL` | Opcional: URL HTTPS da interface; padrão `https://$VERCEL_URL/` |
-| `VIKUNJA_SERVICE_ENABLEREGISTRATION` | `false`; habilite temporariamente para criar a conta inicial |
+| `HIRAYAMA_SUPPORT_USER_ID` | Conta principal que acompanha as empresas; padrão `1` |
+| `HIRAYAMA_SIGNUP_CODE_SHA256` | Opcional: verificador SHA-256 do código de convite, definido somente no servidor |
 
 Gere a chave fixa com `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`.
 A mesma chave precisa ser mantida nos próximos deployments para preservar sessões.
@@ -62,10 +63,20 @@ Arquivos temporários, cache e logs podem usar `/tmp` e stdout.
 
 ### O que foi validado e limitações
 
-O container usa o binário oficial v2.8.0, pois ainda não existem modificações no
-backend Go. As personalizações atuais ficam no frontend, compilado separadamente.
-O inicializador adapta `PORT`, conexão do banco, HTTPS e armazenamento persistente,
-sem mudar permissões, modelos ou o sistema de licença.
+O container compila a API personalizada a partir deste repositório. O frontend
+é compilado separadamente. O cadastro pede empresa, e-mail, senha e código de convite;
+o nome de usuário interno é gerado automaticamente. O servidor valida o código
+nas APIs v1 e v2, inclusive para requisições diretas. Cadastro, equipe privada e
+projeto da empresa são gravados na mesma transação. Contas de empresas diferentes
+não recebem acesso umas às outras. A conta principal configurada acompanha os
+espaços das empresas; as caixas de entrada pessoais continuam privadas.
+Após o cadastro, o login usa empresa, e-mail e senha. O servidor exige participação na empresa informada; digitar seu nome não concede acesso. Cadastros com nome de empresa já existente são recusados; novos membros de uma empresa existente precisam ser autorizados pela equipe. O código de convite não é uma chave
+de API e não concede acesso sem uma conta autenticada.
+
+O inicializador habilita o cadastro protegido e adapta `PORT`, conexão do banco,
+HTTPS e armazenamento persistente. O código de convite não é incluído no bundle
+do frontend; seu verificador padrão fica no servidor e pode ser substituído pela
+variável acima. O sistema de licença não é alterado.
 
 A Vercel pode suspender instâncias sem tráfego. Os agendamentos internos do
 Vikunja não têm garantia de execução nesse período. WebSockets também precisam

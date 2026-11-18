@@ -52,7 +52,7 @@ describe('invitation bootstrap', () => {
 		expect(invitation.hasInviteLink()).toBe(true)
 		api.register.mockResolvedValueOnce({data: {id: 42}})
 		await invitation.registerViaInviteLink(credentials)
-		expect(api.register).toHaveBeenLastCalledWith({body: {...credentials, invite_token: 'synthetic-secret'}})
+		expect(api.register).toHaveBeenLastCalledWith({body: {...credentials, invite_token: 'synthetic-secret'}, headers: {'X-Hirayama-Signup-Code': ''}})
 		expect(invitation.hasInviteLink()).toBe(false)
 		await expect(invitation.registerViaInviteLink(credentials)).rejects.toThrow('No invitation')
 	})

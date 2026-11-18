@@ -24,6 +24,15 @@
 			@submit.prevent="submit"
 		>
 			<FormField
+				id="company-name"
+				v-model="companyName"
+				label="Nome da empresa"
+				name="company-name"
+				autocomplete="organization"
+				placeholder="Empresa que deseja acessar"
+				required
+			/>
+			<FormField
 				id="username"
 				ref="usernameRef"
 				v-focus
@@ -161,6 +170,7 @@ const isDesktop = isDesktopApp()
 const confirmedEmailSuccess = ref(false)
 const errorMessage = ref('')
 const password = ref('')
+const companyName = ref('')
 const validatePasswordInitially = ref(false)
 const rememberMe = ref(false)
 
@@ -219,12 +229,13 @@ async function submit() {
 	// To work around this, we're manually getting the values here instead of relying on vue bindings.
 	// For more info, see https://kolaente.dev/vikunja/frontend/issues/78
 	const credentials: Parameters<typeof authStore.login>[0] = {
+		companyName: companyName.value,
 		username: usernameRef.value?.value,
 		password: password.value,
 		longToken: rememberMe.value,
 	}
 
-	if (credentials.username === '' || credentials.password === '') {
+	if (credentials.username === '' || credentials.password === '' || companyName.value.trim() === '') {
 		// Trigger the validation error messages
 		validateUsernameField()
 		validatePasswordInitially.value = true
@@ -236,10 +247,14 @@ async function submit() {
 	}
 
 	try {
-		await authStore.login(credentials)
+		const company = await authStore.login(credentials)
 		authStore.setNeedsTotpPasscode(false)
 
-		redirectIfSaved()
+		if (company?.project_ids?.[0]) {
+			await router.replace({name: 'project.index', params: {projectId: company.project_ids[0]}})
+		} else {
+			redirectIfSaved()
+		}
 	} catch (e) {
 		if ((e as VikunjaErrorModel)?.code === ERROR_CODE_TOTP_REQUIRED && !credentials.totpPasscode) {
 			return

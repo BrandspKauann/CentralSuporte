@@ -44,19 +44,15 @@
 			@submit.prevent="submit"
 		>
 			<FormField
-				id="username"
-				v-model="credentials.username"
+				id="company-name"
+				v-model="credentials.company_name"
 				v-focus
-				:label="$t('user.auth.username')"
-				name="username"
-				:placeholder="$t('user.auth.usernamePlaceholder')"
+				label="Nome da empresa"
+				name="company-name"
+				autocomplete="organization"
+				placeholder="Empresa que está criando a conta"
+				:maxlength="250"
 				required
-				type="text"
-				autocomplete="username"
-				:error="usernameError"
-				@keyup.enter="submit"
-				@focusout="validateUsername(); validateUsernameAfterFirst = true"
-				@keyup="handleUsernameKeyup"
 			/>
 			<FormField
 				id="email"
@@ -90,6 +86,18 @@
 					{{ passwordError }}
 				</p>
 			</div>
+
+			<FormField
+				id="signup-code"
+				v-model="signupCode"
+				label="Código de convite"
+				name="signup-code"
+				type="password"
+				inputmode="numeric"
+				autocomplete="off"
+				placeholder="Informe o código de acesso"
+				required
+			/>
 
 			<XButton
 				id="register-submit"
@@ -188,10 +196,12 @@ onBeforeMount(() => {
 })
 
 const credentials = reactive({
-	username: '',
+	company_name: '',
+	username: `central_${crypto.randomUUID().replaceAll('-', '')}`,
 	email: '',
 	password: '',
 })
+const signupCode = ref('')
 
 const isLoading = computed(() => authStore.isLoading)
 const errorMessage = ref('')
@@ -208,42 +218,12 @@ const validateEmail = useDebounceFn(() => {
 	emailValid.value = isEmail(credentials.email)
 }, DEBOUNCE_TIME)
 
-const usernameValid = ref<true | string>(true)
-const validateUsernameAfterFirst = ref(false)
-const validateUsername = useDebounceFn(() => {
-	if (credentials.username === '') {
-		usernameValid.value = t('user.auth.usernameRequired')
-		return
-	}
-
-	if (credentials.username.indexOf(' ') !== -1) {
-		usernameValid.value = t('user.auth.usernameMustNotContainSpace')
-		return
-	}
-
-	if (credentials.username.indexOf('://') !== -1 || credentials.username.indexOf('.') !== -1) {
-		usernameValid.value = t('user.auth.usernameMustNotLookLikeUrl')
-		return
-	}
-
-	usernameValid.value = true
-}, DEBOUNCE_TIME)
-
 const everythingValid = computed(() => {
-	return credentials.username !== '' &&
+	return signupCode.value.trim() !== '' &&
+		credentials.company_name.trim() !== '' &&
 		credentials.email !== '' &&
 		validatePassword(credentials.password) === true &&
-		emailValid.value &&
-		usernameValid.value === true
-})
-
-const usernameError = computed(() => {
-	// Client-side validation takes priority
-	if (usernameValid.value !== true) {
-		return usernameValid.value
-	}
-	// Show server-side error if present
-	return serverValidationErrors.value.username || null
+		emailValid.value
 })
 
 const emailError = computed(() => {
@@ -259,13 +239,6 @@ const passwordError = computed(() => {
 	// Show server-side error if present
 	return serverValidationErrors.value.password || null
 })
-
-function handleUsernameKeyup() {
-	if (validateUsernameAfterFirst.value) {
-		validateUsername()
-	}
-	delete serverValidationErrors.value.username
-}
 
 function handleEmailKeyup() {
 	if (validateEmailAfterFirst.value) {
@@ -290,12 +263,17 @@ async function submit() {
 	}
 
 	try {
+		let company
 		if (isInvite.value) {
-			await authStore.registerWithInvite(toRaw(credentials))
+			company = await authStore.registerWithInvite(toRaw(credentials), signupCode.value)
 		} else {
-			await authStore.register(toRaw(credentials))
+			company = await authStore.register(toRaw(credentials), null, false, signupCode.value)
 		}
-		redirectIfSaved()
+		if (company?.project_ids?.[0]) {
+			await router.replace({name: 'project.index', params: {projectId: company.project_ids[0]}})
+		} else {
+			redirectIfSaved()
+		}
 	} catch (e: unknown) {
 		if (isInvite.value && e instanceof Object && 'code' in e && e.code === 2005) {
 			inviteState.value = {status: 'invalid'}

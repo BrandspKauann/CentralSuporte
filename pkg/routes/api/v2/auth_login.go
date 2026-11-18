@@ -21,9 +21,11 @@ import (
 	"net/http"
 
 	"code.vikunja.io/api/pkg/config"
+	"code.vikunja.io/api/pkg/db"
 	"code.vikunja.io/api/pkg/events"
 	"code.vikunja.io/api/pkg/log"
 	"code.vikunja.io/api/pkg/modules/auth"
+	"code.vikunja.io/api/pkg/modules/hirayama"
 	"code.vikunja.io/api/pkg/modules/humabridge"
 	"code.vikunja.io/api/pkg/routes/api/shared"
 	"code.vikunja.io/api/pkg/user"
@@ -40,7 +42,8 @@ type authTokenBody struct {
 	// Cache-Control: no-store keeps the access token out of any shared cache.
 	CacheControl string `header:"Cache-Control"`
 	Body         struct {
-		Token string `json:"token" readOnly:"true" doc:"The short-lived JWT auth token. Send it as a bearer token on subsequent requests."`
+		Token   string                   `json:"token" readOnly:"true" doc:"The short-lived JWT auth token. Send it as a bearer token on subsequent requests."`
+		Company *shared.CompanyWorkspace `json:"company,omitempty" readOnly:"true" doc:"The company selected for this login, after membership verification."`
 	}
 }
 
@@ -89,6 +92,15 @@ func authLogin(ctx context.Context, in *struct{ Body user.Login }) (*authTokenBo
 	if err != nil {
 		return nil, translateDomainError(err)
 	}
+	var company *shared.CompanyWorkspace
+	if hirayama.SignupEnabled() {
+		s := db.NewSession()
+		defer s.Close()
+		company, err = shared.FindCompanyWorkspace(s, u, in.Body.CompanyName)
+		if err != nil {
+			return nil, translateDomainError(err)
+		}
+	}
 
 	deviceInfo, ipAddress := requestClientInfo(ctx)
 	token, err := auth.IssueUserToken(ctx, u, deviceInfo, ipAddress, in.Body.LongToken, nil)
@@ -102,6 +114,7 @@ func authLogin(ctx context.Context, in *struct{ Body user.Login }) (*authTokenBo
 
 	out := &authTokenBody{CacheControl: "no-store"}
 	out.Body.Token = token.AccessToken
+	out.Body.Company = company
 	return out, nil
 }
 

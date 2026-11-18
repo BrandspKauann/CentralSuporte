@@ -26,6 +26,9 @@ test('maps provider credentials, port and HTTPS without losing escaped passwords
   assert.equal(config.VIKUNJA_SERVICE_PUBLICURL, 'https://hirayama.example.com/')
   assert.equal(config.VIKUNJA_FILES_TYPE, 's3')
   assert.equal(config.VIKUNJA_CORS_ENABLE, 'false')
+  assert.equal(config.VIKUNJA_SERVICE_ENABLEREGISTRATION, 'true')
+  assert.equal(config.HIRAYAMA_SIGNUP_ENABLED, 'true')
+  assert.equal(config.HIRAYAMA_SUPPORT_USER_ID, '1')
 })
 
 test('uses the direct connection supplied by the Marketplace for migrations', () => {

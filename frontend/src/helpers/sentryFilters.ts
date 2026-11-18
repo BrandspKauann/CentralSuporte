@@ -276,7 +276,7 @@ function redact<T>(value: T, copies: WeakMap<object, unknown>): T {
 		const copy: Record<string, unknown> = {}
 		copies.set(value, copy)
 		for (const [key, v] of Object.entries(value)) {
-			copy[key] = redact(v, copies)
+			copy[key] = key.toLowerCase() === 'x-hirayama-signup-code' ? '[Filtered]' : redact(v, copies)
 		}
 		return copy as T
 	}
