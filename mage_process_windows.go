@@ -32,6 +32,7 @@ func killProcessGroup(cmd *exec.Cmd) error {
 	if cmd.Process == nil {
 		return nil
 	}
+	// #nosec G204 -- PID comes from this owned child process, never from request input.
 	if err := exec.Command("taskkill", "/T", "/F", "/PID", strconv.Itoa(cmd.Process.Pid)).Run(); err != nil {
 		return err
 	}
