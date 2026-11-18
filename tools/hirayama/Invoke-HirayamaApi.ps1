@@ -13,7 +13,7 @@ $secretFile = Join-Path $env:LOCALAPPDATA 'HirayamaSuporte\api-token.dpapi'
 if (!(Test-Path -LiteralPath $secretFile)) {
     throw 'Conecte primeiro com tools/hirayama/Connect-Hirayama.ps1. Nenhuma tarefa foi gravada.'
 }
-$secureToken = Get-Content -LiteralPath $secretFile -Raw | ConvertTo-SecureString
+$secureToken = (Get-Content -LiteralPath $secretFile -Raw).Trim() | ConvertTo-SecureString
 $plainToken = [System.Net.NetworkCredential]::new('', $secureToken).Password
 try {
     $request = @{
