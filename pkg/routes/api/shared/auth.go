@@ -62,7 +62,7 @@ func RegisterUser(ctx context.Context, in *UserRegister) (*user.User, error) {
 	defer events.CleanupPending(s)
 
 	newUser, err := models.RegisterUser(s, &user.User{
-		Name:     strings.TrimSpace(in.CompanyName),
+		Name:     strings.TrimSpace(in.Username),
 		Username: in.Username,
 		Password: in.Password,
 		Email:    in.Email,

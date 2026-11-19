@@ -24,7 +24,7 @@ test.describe('Registration', () => {
 		// Install clock before navigation so app observes mocked time for greeting
 		await page.clock.install({time: new Date(1625656161057)}) // 13:00
 		await page.goto('/register')
-		await expect(page.locator('#username')).toHaveCount(0)
+		await page.locator('#username').fill('testuser')
 		await page.locator('#company-name').fill('Test Company')
 		await page.locator('#email').fill(fixture.email)
 		await page.locator('#password').fill(fixture.password)
@@ -51,6 +51,7 @@ test.describe('Registration', () => {
 			const page = await context.newPage()
 			await page.goto('/register')
 			await page.locator('#company-name').fill('Mail Company')
+			await page.locator('#username').fill(username)
 			await page.locator('#email').fill(email)
 			await page.locator('#password').fill('12345678')
 			await page.locator('#signup-code').fill(process.env.HIRAYAMA_TEST_SIGNUP_CODE || 'test-invitation')
@@ -99,6 +100,7 @@ test.describe('Registration', () => {
 
 		await page.goto('/register')
 		await page.locator('#company-name').fill('Duplicate Company')
+		await page.locator('#username').fill('duplicateuser')
 		await page.locator('#email').fill(fixture.email)
 		await page.locator('#password').fill(fixture.password)
 		await page.locator('#signup-code').fill(process.env.HIRAYAMA_TEST_SIGNUP_CODE || 'test-invitation')

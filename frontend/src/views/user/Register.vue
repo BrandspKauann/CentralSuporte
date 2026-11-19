@@ -45,6 +45,7 @@
 		>
 			<FormField
 				id="company-name"
+				ref="companyInput"
 				v-model="credentials.company_name"
 				v-focus
 				label="Nome da empresa"
@@ -55,7 +56,19 @@
 				required
 			/>
 			<FormField
+				id="username"
+				ref="usernameInput"
+				v-model="credentials.username"
+				label="Nome de usuário"
+				name="username"
+				autocomplete="username"
+				:minlength="3"
+				:maxlength="250"
+				required
+			/>
+			<FormField
 				id="email"
+				ref="emailInput"
 				v-model="credentials.email"
 				:label="$t('user.auth.email')"
 				name="email"
@@ -89,12 +102,13 @@
 
 			<FormField
 				id="signup-code"
+				ref="codeInput"
 				v-model="signupCode"
 				label="Código de convite"
 				name="signup-code"
-				type="password"
+				type="text"
 				inputmode="numeric"
-				autocomplete="off"
+				autocomplete="one-time-code"
 				placeholder="Informe o código de acesso"
 				required
 			/>
@@ -103,7 +117,7 @@
 				id="register-submit"
 				:loading="isLoading"
 				class="mie-2"
-				:disabled="!everythingValid"
+				:disabled="isLoading"
 				@click="submit"
 			>
 				{{ $t('user.auth.createAccount') }}
@@ -197,11 +211,15 @@ onBeforeMount(() => {
 
 const credentials = reactive({
 	company_name: '',
-	username: `central_${crypto.randomUUID().replaceAll('-', '')}`,
+	username: '',
 	email: '',
 	password: '',
 })
 const signupCode = ref('')
+const companyInput = ref<HTMLInputElement | null>(null)
+const usernameInput = ref<HTMLInputElement | null>(null)
+const emailInput = ref<HTMLInputElement | null>(null)
+const codeInput = ref<HTMLInputElement | null>(null)
 
 const isLoading = computed(() => authStore.isLoading)
 const errorMessage = ref('')
@@ -221,6 +239,8 @@ const validateEmail = useDebounceFn(() => {
 const everythingValid = computed(() => {
 	return signupCode.value.trim() !== '' &&
 		credentials.company_name.trim() !== '' &&
+		credentials.username.length >= 3 &&
+		!/[\s.]/.test(credentials.username) &&
 		credentials.email !== '' &&
 		validatePassword(credentials.password) === true &&
 		emailValid.value
@@ -254,11 +274,19 @@ function isApiValidationError(error: unknown): error is ValidationError {
 }
 
 async function submit() {
+	if (isLoading.value) return
+	// Autofill can update the native input without emitting an input event.
+	credentials.company_name = String(companyInput.value?.value ?? credentials.company_name).trim()
+	credentials.username = String(usernameInput.value?.value ?? credentials.username).trim()
+	credentials.email = String(emailInput.value?.value ?? credentials.email).trim()
+	signupCode.value = String(codeInput.value?.value ?? signupCode.value).trim()
+	emailValid.value = isEmail(credentials.email)
 	errorMessage.value = ''
 	serverValidationErrors.value = {}
 	validatePasswordInitially.value = true
 
 	if (!everythingValid.value || (isInvite.value && inviteState.value.status !== 'ready')) {
+		errorMessage.value = 'Preencha empresa, nome de usuário (mínimo de 3 caracteres, sem espaços ou pontos), e-mail, senha e código de acesso.'
 		return
 	}
 
