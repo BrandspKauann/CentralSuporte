@@ -44,15 +44,15 @@
 			<XButton
 				:loading="waitingForAuth"
 				class="is-fullwidth mbe-2"
-				@click="loginWithServer('https://app.vikunja.cloud')"
+				@click="loginWithServer('https://hirayama-suporte.vercel.app')"
 			>
-				Vikunja Cloud
+				Central de Suporte
 			</XButton>
 			<XButton
 				:loading="waitingForAuth"
 				variant="secondary"
 				class="is-fullwidth mbe-2"
-				@click="loginWithServer('https://try.vikunja.io')"
+				@click="loginWithServer('https://hirayama-suporte.vercel.app')"
 			>
 				{{ $t('user.auth.desktopTryDemo') }}
 			</XButton>

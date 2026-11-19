@@ -54,9 +54,15 @@
 	<CustomTransition name="fade">
 		<section
 			v-if="baseStore.loading"
-			class="vikunja-loading"
+			class="central-loading"
 		>
-			<Logo class="logo" />
+			<img
+				src="/central-logo.svg"
+				alt="Central de Suporte"
+				class="logo"
+				width="336"
+				height="96"
+			>
 			<p>
 				<span class="loader-container is-loading-small is-loading" />
 				{{ $t('ready.loading') }}
@@ -66,7 +72,6 @@
 </template>
 
 <script lang="ts" setup>
-import Logo from '@/assets/logo.svg?component'
 import ApiConfig from '@/components/misc/ApiConfig.vue'
 import Message from '@/components/misc/Message.vue'
 import CustomTransition from '@/components/misc/CustomTransition.vue'
@@ -84,7 +89,7 @@ const baseStore = useBaseStore()
 <style lang="scss" scoped>
 // stylelint-disable no-invalid-position-declaration
 
-.vikunja-loading {
+.central-loading {
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -102,8 +107,8 @@ const baseStore = useBaseStore()
 
 .logo {
 	margin-block-end: 1rem;
-	inline-size: 100px;
-	block-size: 100px;
+	inline-size: 240px;
+	block-size: auto;
 }
 
 .loader-container {

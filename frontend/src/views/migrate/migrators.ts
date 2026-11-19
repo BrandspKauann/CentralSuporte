@@ -36,7 +36,7 @@ export const MIGRATORS = {
 	},
 	'vikunja-file': {
 		id: 'vikunja-file',
-		name: 'Vikunja Export',
+		name: 'Backup',
 		kind: 'file',
 		icon: vikunjaFileIcon,
 	},

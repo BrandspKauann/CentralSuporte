@@ -34,7 +34,7 @@ type CompanyWorkspace struct {
 	ProjectIDs []int64 `json:"project_ids"`
 }
 
-// Companies reuse private teams and project ACLs. A company name never grants membership.
+// An approved signup code authorizes enrollment into the named company.
 func CreateCompanyWorkspace(s *xorm.Session, owner *user.User, name string) error {
 	name = strings.TrimSpace(name)
 	if name == "" || utf8.RuneCountInString(name) > 250 {
@@ -44,28 +44,35 @@ func CreateCompanyWorkspace(s *xorm.Session, owner *user.User, name string) erro
 	if err != nil {
 		return err
 	}
-	exists, err := s.Where("LOWER(name) = ? AND created_by_id = ?", strings.ToLower(name), supportID).Exist(&models.Team{})
+	team := &models.Team{}
+	exists, err := s.Where("LOWER(name) = ? AND created_by_id = ?", strings.ToLower(name), supportID).Get(team)
 	if err != nil {
 		return err
-	}
-	if exists {
-		return models.ErrInvalidData{Message: "Esta empresa já está cadastrada. Entre com uma conta autorizada da empresa."}
 	}
 	support, err := user.GetUserByID(s, supportID)
 	if err != nil {
 		return err
 	}
-	team := &models.Team{Name: name, Description: CompanyDescription, IsPublic: false}
-	if err := team.Create(s, support); err != nil {
+	if !exists {
+		team = &models.Team{Name: name, Description: CompanyDescription, IsPublic: false}
+		if err := team.Create(s, support); err != nil {
+			return err
+		}
+	}
+	links := []*models.TeamProject{}
+	if err := s.Where("team_id = ?", team.ID).OrderBy("project_id").Find(&links); err != nil {
 		return err
 	}
-	project := &models.Project{Title: name, Description: "Projetos e chamados da empresa."}
-	if err := project.Create(s, support); err != nil {
-		return err
-	}
-	teamProject := &models.TeamProject{TeamID: team.ID, ProjectID: project.ID, Permission: models.PermissionWrite}
-	if err := teamProject.Create(s, support); err != nil {
-		return err
+	if len(links) == 0 {
+		project := &models.Project{Title: name, Description: "Projetos e chamados da empresa."}
+		if err := project.Create(s, support); err != nil {
+			return err
+		}
+		link := &models.TeamProject{TeamID: team.ID, ProjectID: project.ID, Permission: models.PermissionWrite}
+		if err := link.Create(s, support); err != nil {
+			return err
+		}
+		links = append(links, link)
 	}
 	if supportID != owner.ID {
 		member := &models.TeamMember{TeamID: team.ID, Username: owner.Username, Admin: false}
@@ -73,7 +80,7 @@ func CreateCompanyWorkspace(s *xorm.Session, owner *user.User, name string) erro
 			return err
 		}
 	}
-	owner.DefaultProjectID = project.ID
+	owner.DefaultProjectID = links[0].ProjectID
 	_, err = s.ID(owner.ID).Cols("default_project_id").Update(owner)
 	return err
 }

@@ -80,8 +80,14 @@ func TestHirayamaCompanyIsolation(t *testing.T) {
 		db.AssertExists(t, "projects", map[string]interface{}{"id": account.DefaultProjectID, "owner_id": 1}, false)
 	}
 	rec = register("duplicate-alpha", " alpha ", "test-invitation")
-	require.GreaterOrEqual(t, rec.Code, 400, rec.Body.String())
-	db.AssertMissing(t, "users", map[string]interface{}{"username": "duplicate-alpha"})
+	require.Equal(t, http.StatusCreated, rec.Code, rec.Body.String())
+	var colleague user.User
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &colleague))
+	colleagueSession := db.NewSession()
+	storedColleague, err := user.GetUserByID(colleagueSession, colleague.ID)
+	require.NoError(t, err)
+	require.Equal(t, alpha.DefaultProjectID, storedColleague.DefaultProjectID)
+	require.NoError(t, colleagueSession.Close())
 	rec = register("missing-company", " ", "test-invitation")
 	require.GreaterOrEqual(t, rec.Code, 400, rec.Body.String())
 	db.AssertMissing(t, "users", map[string]interface{}{"username": "missing-company"})
@@ -139,6 +145,20 @@ func TestHirayamaCompanyIsolation(t *testing.T) {
 	confirmed := request(http.MethodGet, fmt.Sprintf("/api/v2/tasks/%d", task.ID), "", loginData.Token)
 	require.Equal(t, http.StatusOK, confirmed.Code, confirmed.Body.String())
 	require.Contains(t, confirmed.Body.String(), "Alpha edited task")
+	colleagueLogin := adminReq(t, e, http.MethodPost, "/api/v2/login", nil, `{"username":"duplicate-alpha@example.com","password":"test-password-123","company_name":"Alpha"}`)
+	require.Equal(t, http.StatusOK, colleagueLogin.Code, colleagueLogin.Body.String())
+	var colleagueAuth struct {
+		Token   string                  `json:"token"`
+		Company shared.CompanyWorkspace `json:"company"`
+	}
+	require.NoError(t, json.Unmarshal(colleagueLogin.Body.Bytes(), &colleagueAuth))
+	require.Equal(t, loginData.Company.ID, colleagueAuth.Company.ID)
+	sharedTask := request(http.MethodGet, fmt.Sprintf("/api/v2/tasks/%d", task.ID), "", colleagueAuth.Token)
+	require.Equal(t, http.StatusOK, sharedTask.Code, sharedTask.Body.String())
+	colleagueEdit := request(http.MethodPatch, fmt.Sprintf("/api/v2/tasks/%d", task.ID), `{"title":"Colleague edited task"}`, colleagueAuth.Token)
+	require.Equal(t, http.StatusOK, colleagueEdit.Code, colleagueEdit.Body.String())
+	stillPrivate := request(http.MethodGet, fmt.Sprintf("/api/v2/projects/%d", beta.DefaultProjectID), "", colleagueAuth.Token)
+	require.True(t, stillPrivate.Code == http.StatusForbidden || stillPrivate.Code == http.StatusNotFound, stillPrivate.Body.String())
 	s := db.NewSession()
 	defer s.Close()
 	_, err = shared.FindCompanyWorkspace(s, &user.User{ID: 1}, "Alpha")

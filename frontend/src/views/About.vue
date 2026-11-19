@@ -21,6 +21,24 @@
 				<p v-if="proActive">
 					{{ $t('about.proActive') }}
 				</p>
+				<section class="mbs-4">
+					<h2>Informações legais</h2>
+					<p>Central de Suporte, baseado no Vikunja Community. Licença AGPL-3.0-or-later.</p>
+					<p>
+						<a
+							href="https://github.com/BrandspKauann/Hirayama-Suporte"
+							target="_blank"
+							rel="noopener noreferrer"
+						>Código-fonte desta versão</a>
+					</p>
+					<p>
+						<a
+							href="https://github.com/BrandspKauann/Hirayama-Suporte/blob/main/LICENSE"
+							target="_blank"
+							rel="noopener noreferrer"
+						>Licença e avisos de direitos autorais</a>
+					</p>
+				</section>
 			</div>
 			<template #footer>
 				<XButton

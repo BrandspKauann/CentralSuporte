@@ -72,7 +72,7 @@ não recebem acesso umas às outras. A conta principal configurada acompanha os
 espaços das empresas; as caixas de entrada pessoais continuam privadas.
 A administração dos espaços permanece com a conta principal; as contas das
 empresas recebem edição, sem poder remover o acesso da central ou excluir o espaço.
-Após o cadastro, o login usa empresa, e-mail e senha. O servidor exige participação na empresa informada; digitar seu nome não concede acesso. Cadastros com nome de empresa já existente são recusados; novos membros de uma empresa existente precisam ser autorizados pela equipe. O código de convite não é uma chave
+Após o cadastro, o login usa empresa, e-mail e senha. O servidor exige participação na empresa informada; digitar seu nome não concede acesso. Com o código de convite correto, novos cadastros entram na empresa informada quando ela já existe, sem duplicar seus projetos. Se a empresa ainda não existe, seu espaço é criado. O código de convite não é uma chave
 de API e não concede acesso sem uma conta autenticada.
 
 O inicializador habilita o cadastro protegido e adapta `PORT`, conexão do banco,

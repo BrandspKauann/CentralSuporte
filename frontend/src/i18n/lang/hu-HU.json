@@ -49,7 +49,7 @@
 		"accountWillBeDeleted": "Fiókod törlésre kerül, beleértve az esetlegesen létrehozott projekteket, feladatokat és mellékleteket."
 	},
 	"ready": {
-		"loading": "A Vikunja betöltődik…",
+		"loading": "A Central de Suporte betöltődik…",
 		"errorOccured": "Hiba lépett fel:",
 		"checkApiUrl": "Kérlek, ellenőrizd, hogy az API URL helyes-e!",
 		"rateLimited": "A szerver túl sok kérést kapott. Kérlek, várj egy kicsit, majd töltsd újra az oldalt!",
@@ -65,7 +65,7 @@
 			"usernameEmail": "Felhasználónév vagy E-mail cím",
 			"usernamePlaceholder": "Például: frigyes",
 			"email": "E-mail cím",
-			"emailPlaceholder": "Például: frigyes{'@'}vikunja.io",
+			"emailPlaceholder": "Például: frigyes{'@'}example.com",
 			"password": "Jelszó",
 			"passwordPlaceholder": "A jelszavad",
 			"forgotPassword": "Elfelejtetted a jelszad?",
@@ -87,7 +87,7 @@
 			"oauthRedirectedToApp": "Átirányítottunk az alkalmazásba. Most már bezárhatod ezt a böngészőlapot.",
 			"desktopTryDemo": "Próbáld ki a demót",
 			"desktopCustomServer": "Egyéni szerver URL",
-			"desktopCustomServerDescription": "A kezdéshez add meg a Vikunja szervered URL-jét.",
+			"desktopCustomServerDescription": "A kezdéshez add meg a Central de Suporte szervered URL-jét.",
 			"desktopWaitingForAuth": "Várakozás a hitelesítésre…",
 			"desktopOAuthError": "A hitelesítés sikertelen: {error}",
 			"logout": "Kijelentkezés",
@@ -241,7 +241,7 @@
 			},
 			"feeds": {
 				"title": "Atom hírcsatorna",
-				"howTo": "Bármilyen Atom-kompatibilis hírfolyamolvasóval feliratkozhatsz a Vikunja értesítéseidre. Használd a következő URL-t:",
+				"howTo": "Bármilyen Atom-kompatibilis hírfolyamolvasóval feliratkozhatsz a Central de Suporte értesítéseidre. Használd a következő URL-t:",
 				"usernameIs": "A felhasználóneved a hírfolyamhoz: {0}",
 				"apiTokenHint": "Hitelesíts egy olyan API token segítségével, amely rendelkezik a {scope} jogosultsággal. Hozz létre egyet itt: {link}.",
 				"tokenTitle": "Atom hírcsatorna"
@@ -262,7 +262,7 @@
 				"title": "Gyors hozzáadás",
 				"disabled": "Kikapcsolva",
 				"todoist": "Todoist",
-				"vikunja": "Vikunja"
+				"vikunja": "Central de Suporte"
 			},
 			"appearance": {
 				"title": "Színséma",
@@ -281,7 +281,7 @@
 			},
 			"apiTokens": {
 				"title": "API Tokenek",
-				"general": "Az API tokenek lehetővé teszik a Vikunja API használatát felhasználói hitelesítő adatok nélkül.",
+				"general": "Az API tokenek lehetővé teszik a Central de Suporte API használatát felhasználói hitelesítő adatok nélkül.",
 				"apiDocs": "Nézd meg az API dokumentációt",
 				"createAToken": "Token létrehozása",
 				"createToken": "Token létrehozása",
@@ -355,7 +355,7 @@
 						"url": "Nevezd el a csatlakozót Vikunjának, majd add meg ezt az URL-címet: {value}",
 						"auth": "Állítsd a hitelesítést „Nincs bejelentkezés” értékre.",
 						"header": "A Request headers alatt válaszd ki az authorization-t, majd illeszd be ezt a teljes értéket, beleértve a Bearer-t és az utána lévő szóközt, ezután add hozzá a csatlakozót: {value}",
-						"beta": "A kérésfejlécek bétában vannak és csak korlátozott számú szervezet számára érhetők el. Ha ez a szakasz hiányzik, a Vikunja csatlakoztatása még nem érhető el a fiókodhoz."
+						"beta": "A kérésfejlécek bétában vannak és csak korlátozott számú szervezet számára érhetők el. Ha ez a szakasz hiányzik, a Central de Suporte csatlakoztatása még nem érhető el a fiókodhoz."
 					},
 					"mistral": {
 						"open": "A bal oldalsávban nyisd meg a Context → Connectors → Add Connector → Add Custom Connector elemet.",
@@ -374,7 +374,7 @@
 			}
 		},
 		"deletion": {
-			"title": "Vikunja-fiókod törlése",
+			"title": "Central de Suporte-fiókod törlése",
 			"text1": "Fiókod törlése végleges, és nem vonható vissza. Töröljük az összes projekted, feladatod és mindent, ami hozzájuk kapcsolódik.",
 			"text2": "A folytatáshoz add meg jelszavad! Kapni fogsz egy e-mailt a további utasításokkal.",
 			"text3": "A folytatáshoz klikkelj az alábbi gombra! Kapni fogsz egy e-mailt a további utasításokkal.",
@@ -382,7 +382,7 @@
 			"requestSuccess": "A kérés sikeres volt. Kapni fogsz egy e-mailt a további utasításokkal.",
 			"passwordRequired": "Kérlek, írjd be jelszavad!",
 			"confirmSuccess": "Sikeresen megerősítetted fiókod törlését. Három napon belül töröljük fiókod.",
-			"scheduled": "Vikunja fiókod a következő időpontban töröljük: {date} ({dateSince}).",
+			"scheduled": "Central de Suporte fiókod a következő időpontban töröljük: {date} ({dateSince}).",
 			"scheduledCancel": "A fiók törlésének megszakításához klikkelj ide!",
 			"scheduledCancelText": "Fiókod törlésének megszakításához add meg jelszavad alább:",
 			"scheduledCancelButton": "Fiókod törlésének megszakításához klikkelj az alábbi gombra:",
@@ -390,12 +390,12 @@
 			"scheduledCancelSuccess": "Fiókod nem töröljük."
 		},
 		"export": {
-			"title": "Exportálás (Vikunja Export)",
-			"description": "Kérhetsz másolatot az összes Vikunja-adatodról. Ez magában foglalja a projekteket, feladatokat és mindent, ami ezekhez kapcsolódik. Ezeket az adatokat bármely Vikunja példányba importálhatod a migrációs felületen keresztül.",
+			"title": "Exportálás (Central de Suporte Export)",
+			"description": "Kérhetsz másolatot az összes Central de Suporte-adatodról. Ez magában foglalja a projekteket, feladatokat és mindent, ami ezekhez kapcsolódik. Ezeket az adatokat bármely Central de Suporte példányba importálhatod a migrációs felületen keresztül.",
 			"descriptionPasswordRequired": "Kérlek, add meg jelszavad a folytatáshoz:",
 			"request": "Másolatot kérek a Vikunjában lévő adataimról",
-			"success": "Sikeresen lekérted Vikunja-adataid! Amint készen áll a letöltésre, e-mailt küldünk.",
-			"downloadTitle": "Exportált Vikunja-adataid letöltése",
+			"success": "Sikeresen lekérted Central de Suporte-adataid! Amint készen áll a letöltésre, e-mailt küldünk.",
+			"downloadTitle": "Exportált Central de Suporte-adataid letöltése",
 			"ready": "Az exportálás készen áll a letöltésre. {0} -ig töltheted le.",
 			"requestNew": "Másik exportálás kérése"
 		}
@@ -479,7 +479,7 @@
 			"links": {
 				"title": "Megosztási linkek",
 				"what": "Mi az a megosztási link?",
-				"explanation": "A megosztási linkekkel egyszerűen megoszthatsz egy projektet olyanokkal, akik nem rendelkeznek Vikunja-fiókkal.",
+				"explanation": "A megosztási linkekkel egyszerűen megoszthatsz egy projektet olyanokkal, akik nem rendelkeznek Central de Suporte-fiókkal.",
 				"create": "Megosztási link létrehozása",
 				"name": "Név (nem kötelező)",
 				"namePlaceholder": "pl.: tükörfúró",
@@ -757,8 +757,8 @@
 		"title": "Importálás",
 		"titleService": "Importáld {name} adataidat Vikunjába",
 		"description": "A kezdéshez kattints az alábbi, harmadik féltől származó szolgáltatások egyikének logójára.",
-		"descriptionDo": "A Vikunja importálja az összes listát, feladatot, jegyzetet, emlékeztetőt és fájlt, amelyhez hozzáférsz.",
-		"authorize": "Ha engedélyezni szeretnéd Vikunja számára, hogy hozzáférjen {name} fiókodhoz, kattints az alábbi gombra.",
+		"descriptionDo": "A Central de Suporte importálja az összes listát, feladatot, jegyzetet, emlékeztetőt és fájlt, amelyhez hozzáférsz.",
+		"authorize": "Ha engedélyezni szeretnéd Central de Suporte számára, hogy hozzáférjen {name} fiókodhoz, kattints az alábbi gombra.",
 		"getStarted": "Kezdjünk bele",
 		"inProgress": "Importálás folyamatban…",
 		"alreadyMigrated1": "Úgy tűnik, már importáltad a dolgaidat a(z) {name} webhelyről {date} időpontban.",
@@ -766,7 +766,7 @@
 		"confirm": "Biztos vagyok benne, kezdjük az átvezetést!",
 		"importUpload": "Ha adatokat szeretnél importálni a(z) {name} webhelyről Vikunjába, kattints az alábbi gombra a fájl kiválasztásához.",
 		"upload": "Fájl feltöltése",
-		"migrationStartedWillReciveEmail": "A Vikunja most átemeli listáid/projektjeid, feladataid, jegyzeteid, emlékeztetőid és fájljaid a {service} szolgáltatásból. Mivel ez eltart egy ideig, küldünk neked egy e-mailt, mikor végeztünk. Ezt az ablakot bezárhatod.",
+		"migrationStartedWillReciveEmail": "A Central de Suporte most átemeli listáid/projektjeid, feladataid, jegyzeteid, emlékeztetőid és fájljaid a {service} szolgáltatásból. Mivel ez eltart egy ideig, küldünk neked egy e-mailt, mikor végeztünk. Ezt az ablakot bezárhatod.",
 		"migrationFinished": "A(z) {service} szolgáltatásból történő importálás befejeződött. Minden, amit importáltál, mostantól elérhető a projektjeidben.",
 		"migrationFailed": "A(z) {service} importálása sikertelen: {reason}",
 		"failure": {
@@ -778,7 +778,7 @@
 		},
 		"migrationInProgress": "Egy átvezetés folyamatban van. Kérlek várj, amíg elkészül!",
 		"credentials": {
-			"description": "Add meg a {name} példányod címét és hogy a Vikunja hogyan jelentkezzen be. A Vikunja importálja az összes olyan projektet és táblát, amelyhez hozzáférsz; a hitelesítő adatok csak ehhez az importáláshoz kellenek és nem kerülnek tárolásra.",
+			"description": "Add meg a {name} példányod címét és hogy a Central de Suporte hogyan jelentkezzen be. A Central de Suporte importálja az összes olyan projektet és táblát, amelyhez hozzáférsz; a hitelesítő adatok csak ehhez az importáláshoz kellenek és nem kerülnek tárolásra.",
 			"url": "{name} URL-je",
 			"authMethod": "Bejelentkezés ezzel: ",
 			"apiKey": "API kulcs",
@@ -794,7 +794,7 @@
 			"description": "Feladatok importálása CSV fájlból egyéni oszlopleképezéssel.",
 			"uploadDescription": "Válassz ki egy importálandó CSV fájlt. A fájlnak feladatadatokat kell tartalmaznia, az első sorban oszlopcímekkel.",
 			"selectFile": "CSV fájl kiválasztása",
-			"columnMappingDescription": "Rendeld a CSV fájl minden oszlopát egy feladatattribútumhoz. A Vikunja automatikusan felismerte a legvalószínűbb kiosztásokat. Az alábbi előnézet automatikusan frissül, amikor módosítod a beállításokat.",
+			"columnMappingDescription": "Rendeld a CSV fájl minden oszlopát egy feladatattribútumhoz. A Central de Suporte automatikusan felismerte a legvalószínűbb kiosztásokat. Az alábbi előnézet automatikusan frissül, amikor módosítod a beállításokat.",
 			"parsingOptions": "Értelmezési beállítások",
 			"delimiter": "Elválasztójel",
 			"dateFormat": "Dátumformátum",
@@ -854,7 +854,7 @@
 		"imprint": "Impresszum",
 		"privacy": "Adatvédelmi Szabályzat",
 		"closeSidebar": "Oldalsáv bezárása",
-		"home": "Vikunja kezdőlap",
+		"home": "Central de Suporte kezdőlap",
 		"toggleChildProjects": "Alprojektek be-/kikapcsolása",
 		"main": "Fő navigáció",
 		"savedFilters": "Mentett szűrők"
@@ -1051,7 +1051,7 @@
 			"canuse": "Függvény segítségével szűrhetsz a relatív dátumokra.",
 			"learnhow": "Nézd meg, hogyan működik",
 			"title": "Függvény",
-			"intro": "Relatív dátumok megadása, melyeket a Vikunja menet közben old meg a szűrő alkalmazásakor.",
+			"intro": "Relatív dátumok megadása, melyeket a Central de Suporte menet közben old meg a szűrő alkalmazásakor.",
 			"expression": "Minden függvény egy horgonydátummal kezdődik, amely lehet {0}, vagy egy {1}-re végződő dátumkarakterlánc. Ezt a rögzítési dátumot opcionálisan követheti egy vagy több matematikai kifejezés.",
 			"similar": "Ezek a kifejezések hasonlóak a {0} és {1} által biztosított kifejezésekhez.",
 			"add1Day": "Egy nap hozzáadása",
@@ -1326,12 +1326,12 @@
 		},
 		"quickAddMagic": {
 			"hint": "Használjon mágikus előtagokat a határidők, a megbízottak és más feladattulajdonságok meghatározásához.",
-			"quickEntryHint": "Használj varázselőtagokat dátumokhoz, címkékhez és egyebekhez. Nyisd meg a Vikunja fő alkalmazását és további részletekért nézd meg a tippbuborékot a feladatbeviteli mezőnél.",
+			"quickEntryHint": "Használj varázselőtagokat dátumokhoz, címkékhez és egyebekhez. Nyisd meg a Central de Suporte fő alkalmazását és további részletekért nézd meg a tippbuborékot a feladatbeviteli mezőnél.",
 			"title": "Gyors hozzáadás",
 			"intro": "Feladat létrehozásakor speciális kulcsszavak segítségével közvetlenül hozzáadhat attribútumokat az újonnan létrehozott feladathoz. Ez lehetővé teszi a gyakran használt attribútumok hozzáadását a feladatokhoz sokkal gyorsabban.",
 			"multiple": "Ezt többször is használhatja.",
 			"label1": "Címke hozzáadásához egyszerűen írja be a címke nevébe a következőt: {prefix}.",
-			"label2": "Vikunja először ellenőrzi, hogy létezik-e már a címke és ha nem, akkor létrehozza.",
+			"label2": "Central de Suporte először ellenőrzi, hogy létezik-e már a címke és ha nem, akkor létrehozza.",
 			"label3": "Szóközök használatához egyszerűen adjon hozzá egy \" ,vagy ' karaktert a címke neve köré.",
 			"label4": "Például: {prefix}\"Címke szóközökkel\".",
 			"priority1": "Egy feladat prioritásának beállításához adjon hozzá egy számot 1-től 5-ig {prefix} előtaggal.",
@@ -1485,12 +1485,12 @@
 		"views": "Nézetek"
 	},
 	"apiConfig": {
-		"url": "Vikunja URL",
+		"url": "Central de Suporte URL",
 		"urlPlaceholder": "Például: https://localhost:3456",
 		"change": "csere",
-		"use": "A Vikunja telepítés használata itt: {0}",
-		"error": "Nem található, vagy nem használható a Vikunja a(z) \"{domain}\" címen. Kérlek, ellenőrizd, hogy az URL formátuma megfelelő-e, és közvetlenül elérhető-e, majd próbáld újra!",
-		"success": "A Vikunja telepítés használata itt: {domain}",
+		"use": "A Central de Suporte telepítés használata itt: {0}",
+		"error": "Nem található, vagy nem használható a Central de Suporte a(z) \"{domain}\" címen. Kérlek, ellenőrizd, hogy az URL formátuma megfelelő-e, és közvetlenül elérhető-e, majd próbáld újra!",
+		"success": "A Central de Suporte telepítés használata itt: {domain}",
 		"urlRequired": "Az URL megadása kötelező."
 	},
 	"loadingError": {
@@ -1513,7 +1513,7 @@
 	},
 	"quickActions": {
 		"title": "Keresés és gyorsműveletek",
-		"notLoggedIn": "Először jelentkezz be a Vikunja főablakba.",
+		"notLoggedIn": "Először jelentkezz be a Central de Suporte főablakba.",
 		"commands": "Parancsok",
 		"placeholder": "Írjon be egy parancsot vagy keressen…",
 		"hint": "A {project} használatával korlátozhatja a keresést egy projektre. Kombinálja a {project}, vagy a {label} (címkék) kifejezést egy keresési lekérdezéssel, ha ezekkel a címkékkel vagy az adott projekten szeretne feladatot keresni. A {assignee} használatával csak csapatokat kereshet.",
@@ -1647,19 +1647,19 @@
 		"14001": "A megadott API token érvénytelen.",
 		"14002": "A {group} csoport {permission} engedélye érvénytelen.",
 		"14005": "Ebből a szolgáltatásból már fut egy átvezetés. Kérlek, várj, amíg befejeződik!",
-		"14009": "A megadott zip fájl nem tartalmaz Vikunja adatfájlt. Győződj meg róla, hogy Vikunja exportot töltesz fel.",
+		"14009": "A megadott zip fájl nem tartalmaz Central de Suporte adatfájlt. Győződj meg róla, hogy Central de Suporte exportot töltesz fel.",
 		"14010": "A megadott fájlt nem lehet feldolgozni. Kérlek, győződj meg róla, hogy érvényes exportfájl!",
 		"14011": "A megadott fájl nem érvényes zip fájl.",
 		"14012": "A megadott fájl nem tartalmaz adatot.",
-		"14013": "Az export a Vikunja egy olyan verziójával készült, amely túl régi az importáláshoz. Kérlek, hozz létre új exportot egy naprakészebb verzióval!",
+		"14013": "Az export a Central de Suporte egy olyan verziójával készült, amely túl régi az importáláshoz. Kérlek, hozz létre új exportot egy naprakészebb verzióval!",
 		"14016": "Az importálási konfigurációt nem lehetett értelmezni. Kérlek, győződj meg róla, hogy érvényes JSON objektum!",
 		"14018": "Az import több elemet tartalmaz, mint a beállított maximum.",
 		"14019": "Az átvezetés állapota invalid, vagy lejárt. Kérlek, kezdd újra az átvezetést!",
 		"14201": "A Planka elutasította a megadott hitelesítő adatokat. Ellenőrizd az URL-t, valamint az API kulcsot, vagy a felhasználónevet és a jelszót!",
 		"14202": "A Planka fiók egy extra bejelentkezési lépést igényel (kétfaktoros kódot, vagy a feltételek elfogadását). Jelentkezz be egyszer a Plankába a böngészőben, vagy használj API kulcsot a felhasználónév és a jelszó helyett!",
 		"14203": "A Planka URL-je és egy API kulcs, vagy felhasználónév és jelszó szükséges.",
-		"14204": "Nem sikerült elérni a megadott URL-en lévő Planka API-t. Ellenőrizd az URL-t és hogy a Vikunja el tudja-e érni az adott példányt.",
-		"14205": "A Planka URL privát vagy helyi webcímre mutat, amit a Vikunja alapból blokkol. Egy rendszergazda enegedélyezheti az 'outgoingrequests.allownonroutableips' igazra állításával.",
+		"14204": "Nem sikerült elérni a megadott URL-en lévő Planka API-t. Ellenőrizd az URL-t és hogy a Central de Suporte el tudja-e érni az adott példányt.",
+		"14205": "A Planka URL privát vagy helyi webcímre mutat, amit a Central de Suporte alapból blokkol. Egy rendszergazda enegedélyezheti az 'outgoingrequests.allownonroutableips' igazra állításával.",
 		"error": "Hiba",
 		"success": "Siker",
 		"0001": "Nincs jogosultsága ehhez."

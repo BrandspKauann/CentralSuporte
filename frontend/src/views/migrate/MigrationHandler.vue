@@ -150,7 +150,7 @@ import {computed, nextTick, ref, watch} from 'vue'
 import {useI18n} from 'vue-i18n'
 import {useRoute, useRouter} from 'vue-router'
 
-import Logo from '@/assets/logo.svg?component'
+import Logo from '@/components/home/Logo.vue'
 import Message from '@/components/misc/Message.vue'
 import MigrationCredentialsForm, {type PlankaCredentials} from './MigrationCredentialsForm.vue'
 
