@@ -37,3 +37,13 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec vitest run src/views/user/PasswordReset.test.ts
       - run: pnpm run build
+
+  completion-email:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - run: go install github.com/magefile/mage@v1.15.0
+      - run: mage test:completionMail

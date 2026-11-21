@@ -38,6 +38,9 @@ import (
 
 // RegisterListeners registers all event listeners
 func RegisterListeners() {
+	registerCompletionMail()
+	events.RegisterListener((&TaskUpdatedEvent{}).Name(), &SendCompletionMail{})
+	events.RegisterListener((&TaskCreatedEvent{}).Name(), &SendCompletionMail{})
 	events.RegisterListener((&TaskCommentCreatedEvent{}).Name(), &SendTaskCommentNotification{})
 	events.RegisterListener((&TaskAssigneeCreatedEvent{}).Name(), &SendTaskAssignedNotification{})
 	events.RegisterListener((&TaskCreatedEvent{}).Name(), &SendTaskCreatedNotification{})

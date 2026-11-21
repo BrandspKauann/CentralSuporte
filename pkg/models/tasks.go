@@ -1774,6 +1774,10 @@ func (t *Task) updateSingleTaskInViews(s *xorm.Session, a web.Auth, fields []str
 		return err
 	}
 
+	if err = enqueueConfiguredCompletionMail(s, t); err != nil {
+		return err
+	}
+
 	// Get the task updated timestamp in a new struct - if we'd just try to put it into t which we already have, it
 	// would still contain the old updated date.
 	nt := &Task{}

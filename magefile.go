@@ -2330,3 +2330,9 @@ func (Plugins) Build(ctx context.Context, pathToSourceFiles string) error {
 	out := filepath.Join("plugins", filepath.Base(pathToSourceFiles)+".so")
 	return runAndStreamOutput(ctx, "go", "build", "-buildmode=plugin", "-tags", Tags, "-o", out, pathToSourceFiles)
 }
+
+// CompletionMail verifies durable delivery and notification boundaries.
+func (Test) CompletionMail(ctx context.Context) error {
+	mg.Deps(initVars, ensureFrontendDistExists)
+	return runAndStreamOutput(ctx, "go", "test", "-p", "1", "-timeout", "15m", "-run", "^TestHirayamaCompletion|^TestCompletionMailMigration", "./pkg/models", "./pkg/migration", "./pkg/mail")
+}
